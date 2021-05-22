@@ -7,7 +7,6 @@ import auth from '../auth/auth';
 // set up default config for http requests here
 const axiosClient = axios.create({
     headers: {
-        'Authorization': `Bearer ${Cookies.get('admin_accessToken')}`,
         'Accept': 'application/json',
         'content-type': 'application/x-www-form-urlencoded',
 
@@ -16,6 +15,7 @@ const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use(async (config) => {
+    // Every requests by admin need token so far.
     await auth.verifyAccessToken()
     config.headers = {
         'Authorization': `Bearer ${Cookies.get('admin_accessToken')}`,

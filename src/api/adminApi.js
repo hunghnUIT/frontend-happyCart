@@ -1,0 +1,9 @@
+import adminAxios from "../utils/adminAxios";
+import { MY_ACCOUNT_INFO_URL } from "../settings";
+
+class adminApi {
+    myAccount = (params) => {
+        return adminAxios.get(MY_ACCOUNT_INFO_URL, { params })
+    }
+}
+export default new adminApi();

@@ -14,7 +14,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { Modal, } from 'react-bootstrap';
 import './Verify.css';
-import userApi from './userApi';
+import userApi from '../../api/userApi';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 

@@ -1,5 +1,5 @@
-import userAxios from "../../utils/userAxios";
-import { LOGIN_URL, MY_ACCOUNT_INFO_URL, REGISTER_URL } from "../../settings";
+import userAxios from "../utils/userAxios";
+import { LOGIN_URL, MY_ACCOUNT_INFO_URL, REGISTER_URL } from "../settings";
 import qs from 'query-string';
 
 class userApi {
@@ -11,7 +11,7 @@ class userApi {
         };
         const url = LOGIN_URL + (asAdmin ? '?asAdmin=true': '');
 
-        return userAxios.post(url, qs.stringify(loginForm), {  });
+        return userAxios.post(url, qs.stringify(loginForm), { customConfig: { needToken: false } });
     }
 
     myAccount = (params) => {

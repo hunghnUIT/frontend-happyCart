@@ -16,7 +16,8 @@ import Collapse from '@material-ui/core/Collapse';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import cookies from '../../utils/cookie'
 import auth from '../../auth/auth';
-import userApi from './userApi';
+import userApi from '../../api/userApi';
+import adminApi from '../../api/adminApi';
 import { Redirect } from 'react-router-dom'
 
 
@@ -166,42 +167,21 @@ export default function SignInSide(props) {
                             localStorage.setItem('email', "");
                             localStorage.setItem('password', "");
                         }
-        //                 // props.history.push("/");
-        //                 setLoggedIn(true);
+                        // props.history.push("/");
+                        setLoggedIn(true);
                         return data['accessToken'];
                     }
                 })
-        //         .then(async (accessToken) => {
-        //             const config = {
-        //                 url: MY_ACCOUNT_INFO_URL,
-        //                 method: 'GET',
-        //                 headers: {
-        //                     'Accept': 'application/json',
-        //                     'Content-Type': 'application/x-www-form-urlencoded',
-        //                     'Authorization': `Bearer ${accessToken}`
-        //                 },
-        //                 data: formData
-        //             };
-
-        //             if (!isLoginAsAdmin) {
-        //                 axios.request(config)
-        //                     .then(res => res.data)
-        //                     .then(data => {
-        //                         if (data) {
-        //                             localStorage.setItem('nameOfUser', data.user.name)
-        //                         }
-        //                     })
-        //                     .catch(error => {
-        //                         console.log("Error occurred when get user's info.");
-        //                         if (error.response) {
-        //                             console.log(error.response.data);
-        //                         }
-        //                         else {
-        //                             console.log("Something went wrong. Please check your internet connection.");
-        //                         }
-        //                     })
-        //             }
-        //         })
+                .then(async () => {
+                    let response;
+                    if (!isLoginAsAdmin)
+                        response = await userApi.myAccount().catch(err => console.log(err.message));
+                    else
+                        response = await adminApi.myAccount().catch(err => console.log(err.message));
+                    if (response && response.success) {
+                        localStorage.setItem('name', response.user.name)
+                    }                    
+                })
                 .catch((error) => {
                     console.log(error);
                     if (error.response) {
@@ -250,7 +230,6 @@ export default function SignInSide(props) {
                 result = await auth.verifyAccessToken();
             setLoggedIn(result);
         };
-        // console.log(props.location);
         if (!isLoggedIn)
             verifyProcess();
     }, [isLoggedIn]); //eslint-disable-line
