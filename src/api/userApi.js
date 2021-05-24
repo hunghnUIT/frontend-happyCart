@@ -1,5 +1,5 @@
 import userAxios from "../utils/userAxios";
-import { LOGIN_URL, MY_ACCOUNT_INFO_URL, REGISTER_URL } from "../settings";
+import { LOGIN_URL, MY_ACCOUNT_INFO_URL, REGISTER_URL, FORGOT_PASSWORD_URL } from "../settings";
 import qs from 'query-string';
 
 class userApi {
@@ -27,5 +27,9 @@ class userApi {
 
         return userAxios.post(REGISTER_URL, qs.stringify(registerForm));
     };
+
+    forgotPassword = (email) => {
+        return userAxios.post(FORGOT_PASSWORD_URL, qs.stringify({ email: email }));
+    }
 }
 export default new userApi();
