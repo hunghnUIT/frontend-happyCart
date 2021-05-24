@@ -179,7 +179,8 @@ export default function SignInSide(props) {
                     else
                         response = await adminApi.myAccount().catch(err => console.log(err.message));
                     if (response && response.success) {
-                        localStorage.setItem('name', response.user.name)
+                        localStorage.setItem('name', response.user.name);
+                        await cookies.set(authorization + 'name', response.user.name, { path: '/' }); // For extension cuz having trouble in getting name from localStorage
                     }                    
                 })
                 .catch((error) => {
