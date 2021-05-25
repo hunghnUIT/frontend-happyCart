@@ -13,7 +13,7 @@ import history from '../src/utils/history'
 // import { ProtectedRoute } from './auth/protectedRoute' // This one for middleware
 // import { ProtectedAdminRoute } from './auth/protectedAdminRoute' // This one for admin middleware
 // import Admin from './layouts/DashboardLayout';
-// import NotFound from './pages/NotFound'
+import NotFound from './pages/NotFound'
 
 
 function App() {
@@ -26,7 +26,7 @@ function App() {
       <Route path="/forgot-password" exact component={ForgotPassword}></Route>
       <Route path="/admin/login" exact component={()=><Login loginAsAdmin={true}/>}></Route>
       {/* <ProtectedAdminRoute path="/admin" component={Admin}></ProtectedAdminRoute> */}
-      {/* <Route path="*" component ={NotFound}/> */}
+      <Route path="*" component ={NotFound}/>
     </Switch>
     </div>
     </Router>

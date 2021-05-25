@@ -3,10 +3,10 @@ import {
     Box,
     Container,
     Typography,
-} from 'ver-4-11';
-import {makeStyles} from 'ver-4-11';
+    makeStyles,
+} from '@material-ui/core';
 import Page from '../components/Page';
-import logo from './PageNotFound.svg'
+import NotFound from '../PageNotFound.svg'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -40,20 +40,19 @@ const NotFoundView = () => {
                         align="center"
                         color="textPrimary"
                         variant="h2">
-                        404: The page you are looking for isn’t here
+                        404: Trang bạn đang tìm kiếm không có ở đây
                     </Typography>
                     <Typography
                         align="center"
                         color="textPrimary"
                         variant="subtitle2">
-                        You either tried some shady route or you came here by mistake.
-                        Whichever it is, try using the navigation
+                        Có thể bạn đang thử đi tới một địa chỉ nào đó hoặc bằng cách nào đó vô tình đến được đây. Hãy quay trở lại nhé.
                     </Typography>
                     <Box textAlign="center">
                         <img
                             alt="Under development"
                             className={classes.image}
-                            src={logo}
+                            src={NotFound}
                         />
                     </Box>
                 </Container>
