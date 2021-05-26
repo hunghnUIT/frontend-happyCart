@@ -1,5 +1,5 @@
 import userAxios from "../utils/userAxios";
-import { LOGIN_URL, MY_ACCOUNT_INFO_URL, REGISTER_URL, FORGOT_PASSWORD_URL } from "../settings";
+import { LOGIN_URL, MY_ACCOUNT_INFO_URL, REGISTER_URL, FORGOT_PASSWORD_URL, TRACKING_ITEMS_URL } from "../settings";
 import qs from 'query-string';
 
 class userApi {
@@ -9,7 +9,7 @@ class userApi {
             'password': password,
             'deviceToken': deviceToken,
         };
-        const url = LOGIN_URL + (asAdmin ? '?asAdmin=true': '');
+        const url = LOGIN_URL + (asAdmin ? '?asAdmin=true' : '');
 
         return userAxios.post(url, qs.stringify(loginForm), { customConfig: { needToken: false } });
     }
@@ -30,6 +30,10 @@ class userApi {
 
     forgotPassword = (email) => {
         return userAxios.post(FORGOT_PASSWORD_URL, qs.stringify({ email: email }));
+    }
+
+    getTrackingItems = (params) => {
+        return userAxios.get(TRACKING_ITEMS_URL, { params })
     }
 }
 export default new userApi();

@@ -11,7 +11,7 @@ const FORGOT_PASSWORD_URL = AUTH_URL + "/forgot-password";
 // User
 const USER_URL = API_V1_URL + '/user';
 const MY_ACCOUNT_INFO_URL = USER_URL + '/my-account';
-const TRACKING_ITEMS = USER_URL + '/tracking-items';
+const TRACKING_ITEMS_URL = USER_URL + '/tracking-items';
 
 
 // Admin
@@ -36,6 +36,6 @@ export {
     TOKEN_URL,
     FORGOT_PASSWORD_URL,
     MY_ACCOUNT_INFO_URL,
-    TRACKING_ITEMS,
+    TRACKING_ITEMS_URL,
     ADMIN_USER_URL,
 };

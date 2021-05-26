@@ -9,8 +9,9 @@ import {
 import Login from './pages/user/login';
 import Register from './pages/user/register';
 import ForgotPassword from './pages/user/forgotPassword';
-import history from '../src/utils/history'
-// import { ProtectedRoute } from './auth/protectedRoute' // This one for middleware
+import history from '../src/utils/history';
+import WishList from './pages/user/WishList/WishList';
+import { ProtectedRoute } from './auth/protectedRoute' // This one for middleware
 // import { ProtectedAdminRoute } from './auth/protectedAdminRoute' // This one for admin middleware
 // import Admin from './layouts/DashboardLayout';
 import NotFound from './pages/NotFound'
@@ -24,6 +25,7 @@ function App() {
       <Route path="/login" exact component={Login}></Route>
       <Route path="/register" exact component={Register}></Route>
       <Route path="/forgot-password" exact component={ForgotPassword}></Route>
+      <ProtectedRoute path="/wish-list" exact component={WishList}></ProtectedRoute>
       <Route path="/admin/login" exact component={()=><Login loginAsAdmin={true}/>}></Route>
       {/* <ProtectedAdminRoute path="/admin" component={Admin}></ProtectedAdminRoute> */}
       <Route path="*" component ={NotFound}/>

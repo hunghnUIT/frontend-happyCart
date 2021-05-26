@@ -1,7 +1,7 @@
 import cookies from '../utils/cookie'
 import axios from 'axios'
 import qs from 'querystring'
-import { TOKEN_URL } from '../settings'
+import { TOKEN_URL, } from '../settings';
 
 
 
@@ -20,7 +20,7 @@ class Auth {
 
         const refreshToken = cookies.get(this.authorization + 'refreshToken');
 
-        if (cookies.get(this.authorization + 'accessToken') && Math.floor(Date.now() / 1000) <= cookies.get(this.authorization + 'expiredAt')) {
+        if (cookies.get(this.authorization + 'accessToken') && Math.floor(Date.now()) <= cookies.get(this.authorization + 'expiredAt')) {
             return true
         }
         // If refreshToken are available => Do refresh
@@ -35,8 +35,7 @@ class Auth {
 
     async refreshAccessToken(token) {
         const refreshForm = {
-            'refresh_token': token,
-            'grant_type': 'refresh_token'
+            'refreshToken': token,
         };
 
         let config = {
@@ -76,6 +75,10 @@ class Auth {
         cookies.set('accessToken', '', { path: '/' });
         cookies.set('refreshToken', '', { path: '/' });
         cookies.set('expiredAt', '', { path: '/' });
+        // backend domain for sure <== this not works
+        // cookies.set('accessToken', '', { path:  BASE_URL});
+        // cookies.set('refreshToken', '', { path: BASE_URL });
+        // cookies.set('expiredAt', '', { path: BASE_URL });
 
         callback();
     }
