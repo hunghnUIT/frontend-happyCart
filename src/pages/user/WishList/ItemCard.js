@@ -27,7 +27,7 @@ const useStyles = makeStyles({
     }
 });
 
-export default function ItemCard({ currentPrice, lastPriceChange, name, update, thumbnailUrl, productUrl, ...props }) {
+export default function ItemCard({ currentPrice, lastPriceChange, name, update, thumbnailUrl, productUrl, onClickItem, ...props }) {
     const classes = useStyles();
 
     const RenderPriceInfo = () => {
@@ -58,10 +58,10 @@ export default function ItemCard({ currentPrice, lastPriceChange, name, update, 
             return (
                 <>
                     <Grid item xs={12} sm={12}>
-                        <Typography display="inline-block" variant="body1" color="textPrimary" component="p">
+                        <Typography display="block" variant="body1" color="textPrimary" component="p">
                             Giá hiện tại
                         </Typography>
-                        <Typography display="inline-block" variant="h6" color="textPrimary" component="p">
+                        <Typography display="block" variant="h6" color="textPrimary" component="p">
                             {formatCurrency(currentPrice)}
                         </Typography>
                     </Grid>
@@ -72,7 +72,13 @@ export default function ItemCard({ currentPrice, lastPriceChange, name, update, 
     return (
         <Card className={classes.root}>
             <CardActionArea
-                onClick={() => { console.log('clicked'); }}>
+                onClick={() => { onClickItem({
+                    name, currentPrice,
+                    lastPriceChange, update, 
+                    thumbnailUrl, productUrl,
+                    notifyWhenPriceLt: props.notifyWhenPriceLt,
+                    ...props,
+                })}}>
                 <CardMedia
                     component="img"
                     className={classes.media}

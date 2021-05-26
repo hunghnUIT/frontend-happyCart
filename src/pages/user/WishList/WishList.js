@@ -20,7 +20,6 @@ import PerfectScrollbar from 'react-perfect-scrollbar';
 import auth from '../../../auth/auth';
 import cookies from '../../../utils/cookie';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Modal, } from 'react-bootstrap';
 
 
 const useStyles = makeStyles(theme => ({
@@ -80,7 +79,6 @@ export default function WishList(props) {
     // Value selected
     const [listSelectedButtonSideBar, setListSelectedButtonSideBar] = useState(new Array(4).fill(false)); // Just 01 button selected at a moment
     const [valueRadioBtn, setValueRadioBtn] = React.useState('');
-    const [isShowModal, setShowModal] = useState(true);
 
     const handleChangeRadioBtn = (event) => {
         setValueRadioBtn(event.target.value);
@@ -151,7 +149,7 @@ export default function WishList(props) {
     // }, [isTabDecreasedItems])
 
     return (
-        <div class="container">
+        <div className="container">
             <Grid container
                 spacing={1}
                 direction="row"
@@ -222,7 +220,7 @@ export default function WishList(props) {
                         alignItems="flex-start"
                     >
                         <Grid item sm={12} md={7}>
-                            <div class="well">
+                            <div className="well">
                                 <Grid container
                                     spacing={2}
                                     direction="row"
@@ -238,7 +236,7 @@ export default function WishList(props) {
                                             margin="normal"
                                             fullWidth
                                             id="search-input"
-                                            label="Search product"
+                                            label="Tìm kiếm sản phẩm đang theo dõi"
                                             name="searched-item-name"
                                             style={{ marginTop: "0", marginBottom: "0" }}
                                         // onChange={updateInputEmail}
@@ -254,15 +252,15 @@ export default function WishList(props) {
                                         <Button className={classes.searchComponent}
                                             style={{ paddingLeft: '0' }}
                                         >
-                                            <i class="fa fa-search"></i>
+                                            <i className="fa fa-search"></i>
                                         </Button>
                                     </Grid>
                                 </Grid>
                             </div>
                         </Grid>
                         <Grid item sm={12} md={5}>
-                            <ul class="shop__sorting">
-                                <li class="active"><a href="./wish-list">Đang theo dõi</a></li>
+                            <ul className="shop__sorting">
+                                <li className="active"><a href="./wish-list">Đang theo dõi</a></li>
                                 <li><a href="#">{nameOfUser}</a></li> {/* eslint-disable-line */}
                                 <li><a href="#" onClick={handleLogout}>Đăng xuất</a></li> {/* eslint-disable-line */}
                             </ul>
@@ -276,31 +274,6 @@ export default function WishList(props) {
                             />
                         </Box>
                     </PerfectScrollbar>
-                    <Modal
-                        show={isShowModal}
-                        onHide={() => {setShowModal(false)}}
-                        aria-hidden='true'
-                    >
-                        <Modal.Header closeButton>
-                            <Modal.Title>Sản phẩm đang theo dõi giá</Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <Grid container
-                                spacing={1}
-                                direction="row"
-                                justify="flex-start"
-                                alignItems="flex-start"
-                            >
-                                <Grid item xs={12} md={3}>
-                                    hinh
-                                </Grid>
-                                <Grid item xs={12} md={8}>
-                                    thong tin
-                                </Grid>
-                            </Grid>
-                        </Modal.Body>
-                    </Modal>
-
                     <TablePagination
                         component="div"
                         count={trackingItems.length}
