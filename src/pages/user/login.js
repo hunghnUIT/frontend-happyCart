@@ -300,7 +300,7 @@ export default function SignInSide(props) {
             return (
                 <Redirect
                     to={{
-                        pathname: "/",
+                        pathname: "/wish-list",
                         state: {
                             from: props.location
                         }
