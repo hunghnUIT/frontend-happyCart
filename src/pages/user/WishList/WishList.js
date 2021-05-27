@@ -42,6 +42,11 @@ const useStyles = makeStyles(theme => ({
     searchComponent: {
         height: 45,
     },
+    buttonSearch: {
+        '&:hover': {
+            backgroundColor: 'transparent',
+        }
+    },
     buttonSideBar: {
         backgroundColor: "transparent",
         margin: theme.spacing(0, 0, 1),
@@ -68,11 +73,13 @@ export default function WishList(props) {
     // Data
     const [trackingItems, setTrackingItems] = useState([]);
     const [nameOfUser, setNameOfUser] = useState('');
+    const [count, setCount] = useState(0);
 
     // filter
     const [limit, setLimit] = useState(12);
-    const [page, setPage] = useState(0);
-    const [filter, setFilter] = useState({});
+    const [page, setPage] = useState(1);
+    const [filter, setFilter] = useState({ limit, page });
+    const [searchTerm, setSearchTerm] = useState('');
     // const [searchTerm, setSearchTerm] = useState('');
     // const [isTabDecreasedItems, setIsTabDecreasedItems] = useState(false);
 
@@ -82,6 +89,23 @@ export default function WishList(props) {
 
     const handleChangeRadioBtn = (event) => {
         setValueRadioBtn(event.target.value);
+        let t;
+        switch (event.target.value) {
+            case 'asc-price':
+                t = trackingItems.sort((a, b) => a.item.currentPrice - b.item.currentPrice)
+                setTrackingItems(t);
+                break;
+            case 'desc-price':
+                t = trackingItems.sort((a, b) => b.item.currentPrice - a.item.currentPrice)
+                setTrackingItems(t);
+                break;
+            case 'most-decreased-price':
+                t = trackingItems.sort((a, b) => b.item.lastPriceChange - a.item.lastPriceChange)
+                setTrackingItems(t);
+                break;
+            default:
+                break;
+        }
     };
 
     const handleClickSideBarBtn = (event) => {
@@ -108,18 +132,31 @@ export default function WishList(props) {
     //     });
     // }
 
+    const handleSearchItem = () => {
+        setFilter({
+            ...filter,
+            q: searchTerm,
+        })
+    }
+
     const handleLogout = () => {
         auth.logout(() => { props.history.push("/login") });
     }
 
     const handlePageChange = (event, newPage) => {
         // API provide newPage
-        setPage(newPage);
+        setPage(newPage + 1);
         setFilter({
             ...filter,
-            offset: filter['limit'] * newPage,
+            page: newPage + 1,
         })
     };
+
+    const handleHitEnter = (e)=>{
+        if(e.key === 'Enter'){
+            handleSearchItem();
+        }
+    }
 
     // Component did mount
     useEffect(() => {
@@ -131,22 +168,28 @@ export default function WishList(props) {
         // Get name of user
         setNameOfUser(cookies.get('name'));
 
-        userApi.getTrackingItems({}).then(resp => {
-            if (resp.success) {
+        // NOTE When creating "filter" state, api fetched again so no need to fetch on did mount
+        // userApi.getTrackingItems({}).then(resp => {
+        //     if (resp.success) {
+        //         let data = [];
+        //         data = data.concat(resp.trackingItemsShopee);
+        //         data = data.concat(resp.trackingItemsTiki);
+        //         setTrackingItems(data);
+        //     }
+        // });
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        userApi.getTrackingItems(filter).then(resp => {
+            if (resp?.success) {
                 let data = [];
                 data = data.concat(resp.trackingItemsShopee);
                 data = data.concat(resp.trackingItemsTiki);
                 setTrackingItems(data);
+                setCount(resp.count || 0);
             }
         });
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    // useEffect(() => {
-    //     if (!isTabDecreasedItems)
-    //         userApi.getTrackingItems({});
-    //     else
-    //         userApi.getTrackingItems({ filter: 'decreasedPrice' });
-    // }, [isTabDecreasedItems])
+    }, [filter])
 
     return (
         <div className="container">
@@ -168,7 +211,10 @@ export default function WishList(props) {
                         variant="contained"
                         disableElevation={true}
                         id={0}
-                        onClick={handleClickSideBarBtn}
+                        onClick={(e) => {
+                            handleClickSideBarBtn(e);
+                            setFilter({ page, limit });
+                        }}
                     >
                         Tất cả sản phẩm
                     </Button>
@@ -177,7 +223,13 @@ export default function WishList(props) {
                         variant="contained"
                         disableElevation={true}
                         id={1}
-                        onClick={handleClickSideBarBtn}
+                        onClick={(e) => {
+                            handleClickSideBarBtn(e);
+                            setFilter({
+                                ...filter,
+                                filter: 'decreasedOnly',
+                            })
+                        }}
                     >
                         Sản phẩm có giá giảm
                     </Button>
@@ -239,18 +291,21 @@ export default function WishList(props) {
                                             label="Tìm kiếm sản phẩm đang theo dõi"
                                             name="searched-item-name"
                                             style={{ marginTop: "0", marginBottom: "0" }}
-                                        // onChange={updateInputEmail}
-                                        // value={email}
+                                            onKeyDown={handleHitEnter}
+                                            onChange={(e) => {
+                                                setSearchTerm(e.target.value);
+                                            }}
+                                            value={searchTerm}
                                         // error={!isValidateEmail}
                                         // helperText={messageEmail}
-                                        // onKeyDown={handleHitEnter}
                                         />
                                     </Grid>
                                     <Grid item xs={1} className={classes.centerIcon}
                                         style={{ paddingLeft: '0' }}
                                     >
-                                        <Button className={classes.searchComponent}
+                                        <Button className={classes.searchComponent + ' ' + classes.buttonSearch}
                                             style={{ paddingLeft: '0' }}
+                                            onClick={handleSearchItem}
                                         >
                                             <i className="fa fa-search"></i>
                                         </Button>
@@ -276,10 +331,10 @@ export default function WishList(props) {
                     </PerfectScrollbar>
                     <TablePagination
                         component="div"
-                        count={trackingItems.length}
+                        count={count}
                         onChangePage={handlePageChange}
                         onChangeRowsPerPage={handleLimitChange}
-                        page={page}
+                        page={page - 1}
                         rowsPerPage={limit}
                         rowsPerPageOptions={[6, 12, 24]}
                     />

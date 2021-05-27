@@ -1,4 +1,4 @@
-exports.limitDisplayString = (str = "", limitLength = 20) => {
+exports.limitDisplayString = (str = "", limitLength = 19) => {
     if (str.length <= limitLength)
         return str;
     else

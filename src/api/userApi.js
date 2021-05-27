@@ -35,5 +35,18 @@ class userApi {
     getTrackingItems = (params) => {
         return userAxios.get(TRACKING_ITEMS_URL, { params })
     }
+
+    updateTrackedItem = (itemId, platform, notifyWhenPriceLt) => {
+        const trackItemForm = {
+            itemId,
+            platform,
+            notifyWhenPriceLt,
+        }
+        return userAxios.post(TRACKING_ITEMS_URL, qs.stringify(trackItemForm));
+    }
+
+    removeTrackedItem = (itemId, platform) => {
+        return userAxios.delete(`${TRACKING_ITEMS_URL}/${itemId}?platform=${platform}`);
+    }
 }
 export default new userApi();
