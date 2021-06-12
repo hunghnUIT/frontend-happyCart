@@ -3,19 +3,21 @@ import PropTypes from "prop-types";
 import classNames from "classnames";
 // import shortid from "shortid";
 import { Card, CardBody } from "shards-react";
+import { Typography } from "@material-ui/core";
+import { formatNumber } from "../../helpers/helper";
 
 class SmallStats extends React.Component {
-  constructor(props) {
-    super(props);
+  // constructor(props) {
+  //   super(props);
 
-    this.canvasRef = React.createRef();
-  }
+  //   // this.canvasRef = React.createRef();
+  // }
 
   componentDidMount() {
   }
 
   render() {
-    const { variation, label, value, percentage, increase } = this.props;
+    const { variation, label, value, subtitle } = this.props;
 
     const cardClasses = classNames(
       "stats-small",
@@ -53,23 +55,18 @@ class SmallStats extends React.Component {
       variation !== "1" && "text-right align-items-center"
     );
 
-    const percentageClasses = classNames(
-      "stats-small__percentage",
-      `stats-small__percentage--${increase ? "increase" : "decrease"}`
-    );
-
-    // const canvasHeight = variation === "1" ? 120 : 60;
-
     return (
       <Card small className={cardClasses}>
         <CardBody className={cardBodyClasses}>
           <div className={innerWrapperClasses}>
             <div className={dataFieldClasses}>
               <span className={labelClasses}>{label}</span>
-              <h6 className={valueClasses}>{value}</h6>
+              <h6 className={valueClasses}>{formatNumber(value)}</h6>
             </div>
             <div className={innerDataFieldClasses}>
-              <span className={percentageClasses}>{percentage}</span>
+              <Typography variant='caption' className='text-center'>
+                {subtitle}
+              </Typography>
             </div>
           </div>
         </CardBody>

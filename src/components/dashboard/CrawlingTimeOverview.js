@@ -5,6 +5,10 @@ import { Row, Col, Card, CardHeader, CardBody, Button } from "shards-react";
 import RangeDatePicker from "../common/RangeDatePicker";
 import Chart from "../utils/chart";
 
+
+import { toHumanReadableTimeFormat } from '../../helpers/helper'; //eslint-disable-line
+
+
 class CrawlingTimeOverview extends React.Component {
   constructor(props) {
     super(props);
@@ -15,7 +19,7 @@ class CrawlingTimeOverview extends React.Component {
 
   componentDidMount() {
     const chartOptions = {
-      ...{
+      // ...{
         responsive: true,
         legend: {
           position: "top"
@@ -37,7 +41,16 @@ class CrawlingTimeOverview extends React.Component {
                 callback(tick, index) {
                   // Jump every 7 values on the X axis labels to avoid clutter.
                   return index % 7 !== 0 ? "" : tick;
-                }
+                },
+                // afterTickToLabelConversion: function (data) {
+                //   let xLabels = data.ticks;
+                //   xLabels.forEach(function (labels, i) {
+                //     let labelLength = this.props.labels.length;
+                //       if (labelLength >= 10 && i % Math.round(labelLength / 10 + 1) != 0) {
+                //           xLabels[i] = '';
+                //       }
+                //   });
+                // },
               }
             }
           ],
@@ -63,10 +76,20 @@ class CrawlingTimeOverview extends React.Component {
         tooltips: {
           custom: false,
           mode: "nearest",
-          intersect: false
+          intersect: false,
+        //   callbacks: {
+        //     label: function (tooltipItem, data) {
+        //         // const itemPrice = prices[tooltipItem.index];
+        //         // const priceChangeInDay = itemPrice?.priceChangeInDay || [];
+                
+        //         // const time = new Date(itemPrice.update);
+        //         // return [`${formatter.format(itemPrice.price)} lúc ${time.getHours()}:${time.getMinutes()}.`];
+        //         return [`${toHumanReadableTimeFormat(tooltipItem.xLabel)}`]
+        //     }
+        // }
         }
-      },
-      ...this.props.chartOptions
+      // },
+      // ...this.props.chartOptions
     };
 
     const CrawlingTime = new Chart(this.canvasRef.current, {
@@ -119,11 +142,14 @@ class CrawlingTimeOverview extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.dataShopee !== this.props.dataShopee || prevProps.dataTiki !== this.props.dataTiki) {
+    if (prevProps.dataShopee !== this.props.dataShopee 
+      || prevProps.dataTiki !== this.props.dataTiki
+      || prevProps.labels !== this.props.labels) {
       // NOTE this will be fix if i find another to update chart (I don't want to update state like below)
       this.state.crawlingTimeChart.data.datasets[1].data = this.props.dataTiki //eslint-disable-line
       this.state.crawlingTimeChart.data.datasets[0].data = this.props.dataShopee //eslint-disable-line
-
+      this.state.crawlingTimeChart.labels = this.props.labels; //eslint-disable-line
+    
       this.state.crawlingTimeChart.update();
     }
   }
@@ -177,7 +203,8 @@ CrawlingTimeOverview.propTypes = {
 
 CrawlingTimeOverview.defaultProps = {
   title: "Tổng quan thời gian crawl",
-  labels: Array.from(new Array(30), (_, i) => (i === 0 ? 1 : i)),
+  labels: [],
+  // labels: Array.from(new Array(30), (_, i) => (i === 0 ? 1 : i)),
   dataTiki: [],
   dataShopee: [],
 };
