@@ -12,8 +12,9 @@ import ForgotPassword from './pages/user/forgotPassword';
 import history from '../src/utils/history';
 import WishList from './pages/user/WishList/WishList';
 import { ProtectedRoute } from './auth/protectedRoute' // This one for middleware
-// import { ProtectedAdminRoute } from './auth/protectedAdminRoute' // This one for admin middleware
-// import Admin from './layouts/DashboardLayout';
+// eslint-disable-next-line
+import { ProtectedAdminRoute } from './auth/protectedAdminRoute'; // This one for admin middleware 
+import Admin from './pages/admin/Admin';
 import NotFound from './pages/NotFound'
 
 
@@ -27,7 +28,8 @@ function App() {
       <Route path="/forgot-password" exact component={ForgotPassword}></Route>
       <ProtectedRoute path="/wish-list" exact component={WishList}></ProtectedRoute>
       <Route path="/admin/login" exact component={()=><Login loginAsAdmin={true}/>}></Route>
-      {/* <ProtectedAdminRoute path="/admin" component={Admin}></ProtectedAdminRoute> */}
+      <ProtectedAdminRoute path="/admin" component={Admin}></ProtectedAdminRoute>
+      {/* <Route path="/admin" component={Admin}></Route> */}
       <Route path="*" component ={NotFound}/>
     </Switch>
     </div>

@@ -18,7 +18,7 @@ const TRACKING_ITEMS_URL = USER_URL + '/tracking-items';
 const ADMIN_URL = API_V1_URL + '/admin';
 const ADMIN_USER_URL = ADMIN_URL + '/users';
 // const ADMIN_LOG_URL = ADMIN_URL + "/logs";
-// const ADMIN_STATISTIC_URL = ADMIN_URL + "/statistics";
+const ADMIN_STATISTIC_URL = ADMIN_URL + "/statistics";
 
 
 // const VERIFY_RESET_PASSWORD_URL = RESET_PASSWORD_URL + "/verify";
@@ -38,4 +38,5 @@ export {
     MY_ACCOUNT_INFO_URL,
     TRACKING_ITEMS_URL,
     ADMIN_USER_URL,
+    ADMIN_STATISTIC_URL,
 };
