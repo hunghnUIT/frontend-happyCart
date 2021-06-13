@@ -13,27 +13,33 @@ class RangeDatePicker extends React.Component {
   constructor(props) {
     super(props);
 
+    const today = new Date();
+    let fifteenDayAgo = new Date();
+    fifteenDayAgo.setDate(today.getDate() - 15);
+
     this.state = {
-      startDate: undefined,
-      endDate: undefined
+      startDate: fifteenDayAgo,
+      endDate: today
     };
 
     this.handleStartDateChange = this.handleStartDateChange.bind(this);
     this.handleEndDateChange = this.handleEndDateChange.bind(this);
   }
 
-  handleStartDateChange(value) {
-    this.setState({
-      ...this.state,
-      ...{ startDate: new Date(value) }
+  async handleStartDateChange(value) {
+    await this.setState({
+      startDate: new Date(value)
     });
+
+    this.props.onDateChange(this.state.startDate, this.state.endDate)
   }
 
-  handleEndDateChange(value) {
-    this.setState({
-      ...this.state,
-      ...{ endDate: new Date(value) }
+  async handleEndDateChange(value) {
+    await this.setState({
+      endDate: new Date(value) 
     });
+
+    this.props.onDateChange(this.state.startDate, this.state.endDate)
   }
 
   render() {
@@ -49,6 +55,8 @@ class RangeDatePicker extends React.Component {
           placeholderText="Start Date"
           dropdownMode="select"
           className="text-center"
+          dateFormat="dd-MM-yyyy"
+          timezone='Asia/Ho_Chi_Minh'
         />
         <DatePicker
           size="sm"
@@ -57,6 +65,8 @@ class RangeDatePicker extends React.Component {
           placeholderText="End Date"
           dropdownMode="select"
           className="text-center"
+          timezone='Asia/Ho_Chi_Minh'
+          dateFormat="dd-MM-yyyy"
         />
         <InputGroupAddon type="append">
           <InputGroupText>

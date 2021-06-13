@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import PropTypes from "prop-types";
 import { Container, Row, Col } from "shards-react";
 
 import PageTitle from "../../components/common/PageTitle";
@@ -18,6 +17,7 @@ export default function Dashboard({ smallStats, ...props }) {
   const [crawlingTimeTiki, setCrawlingTimeTiki] = useState([]);
   const [crawlingTimeShopee, setCrawlingTimeShopee] = useState([]);
   const [labels, setLabels] = useState([]);
+  const [timeRange, setTimeRange] = useState({});
 
   // Crawling progress
   const [progressShopee, setProgressShopee] = useState({});
@@ -32,21 +32,7 @@ export default function Dashboard({ smallStats, ...props }) {
   const [totalTrackedItem, setTotalTrackedItem] = useState(0);
   
   useEffect(() => {
-    // Get this statistic in 15 days
-    const end = new Date().getTime();
-    const start = end - 15 * 86400000;
-    adminApi.getStatistics({ type: 'crawling-time', start, end }).then(resp => {
-      if (resp?.success) {
-        let labels = resp.data.shopee.map(el => el.update);
-        labels = labels.concat(resp.data.tiki.map(el => el.update))
-        setLabels([...new Set(labels)]);
-
-        setCrawlingTimeShopee(resp.data.shopee.map(el => el.executionTimeInMs));
-        setCrawlingTimeTiki(resp.data.tiki.map(el => el.executionTimeInMs));
-      }
-    }).catch(err => console.log(err.message))
-
-    // Small stats
+  // Small stats
     const list = ['item', 'category', 'crawler', 'user', 'tracked-item'];
     list.forEach(type => {
       adminApi.getStatistics({ type: type, platform: 'all' }).then(resp => {
@@ -75,10 +61,43 @@ export default function Dashboard({ smallStats, ...props }) {
     });
   }, []);
 
+  useEffect(() => {
+    // Get this statistic default is in range 15 days
+    let start = undefined;
+    let end = undefined;
+
+    end = new Date().getTime();
+    start = end - 15 * 86400000;
+
+    if (timeRange?.start)
+      start = timeRange.start;
+    if (timeRange?.end)
+      end = timeRange.end;
+
+    adminApi.getStatistics({ type: 'crawling-time', start, end }).then(resp => {
+      if (resp?.success) {
+        let labels = resp.data.shopee.map(el => el.update);
+        labels = labels.sort((a,b) => a-b)
+        labels = labels.map(el => (new Date(el)).toLocaleString('en-GB', { timeZone: 'Asia/Ho_Chi_Minh' }));
+        setLabels(labels);
+
+        const compare = (a, b) => a.update - b.update
+
+        setCrawlingTimeShopee(resp.data.shopee.sort(compare).map(el => el.executionTimeInMs));
+        setCrawlingTimeTiki(resp.data.tiki.sort(compare).map(el => el.executionTimeInMs));
+      }
+    }).catch(err => console.log(err.message))
+  }, [timeRange])
+
   const fetchCrawlingProgressInfo = () => {
+    let flag = 0;
+
     const now = new Date().getTime();
     if ((Object.keys(progressShopee).length && progressShopee.shopee.expired !== 0)
       || !Object.keys(progressShopee).length || now > progressShopee.expiredTime) {
+
+      flag += 1;
+
       adminApi.getStatistics({ type: 'crawling-progress', platform: 'shopee' }).then(resp => {
         if (resp?.success) {
           setProgressShopee(resp.data);
@@ -88,10 +107,23 @@ export default function Dashboard({ smallStats, ...props }) {
 
     if ((Object.keys(progressTiki).length && progressTiki.tiki.expired !== 0)
       || !Object.keys(progressTiki).length || now > progressTiki.expiredTime) {
+
+      flag += 1;
+
+      // Just need to update total item whenever crawling still on going
       adminApi.getStatistics({ type: 'crawling-progress', platform: 'tiki' }).then(resp => {
       if (resp?.success) {
         setProgressTiki(resp.data);
       }
+      }).catch(err => console.log(err.message))
+    }
+
+    if (flag) {
+      // Update total item
+      adminApi.getStatistics({ type: 'item', platform: 'all' }).then(resp => {
+        if (resp?.success) {
+          setTotalItem(resp.data.total);
+        }
       }).catch(err => console.log(err.message))
     }
   }
@@ -100,13 +132,6 @@ export default function Dashboard({ smallStats, ...props }) {
     setTimeout(() => { setUpdateCount(updateCount + 1) }, 15000); // Update after 15s
 
     fetchCrawlingProgressInfo();
-
-    // Update total item
-    adminApi.getStatistics({ type: 'item', platform: 'all' }).then(resp => {
-      if (resp?.success) {
-        setTotalItem(resp.data.total);
-      }
-    }).catch(err => console.log(err.message))
 
   }, [updateCount]) // eslint-disable-line
 
@@ -202,6 +227,7 @@ export default function Dashboard({ smallStats, ...props }) {
             dataTiki={crawlingTimeTiki} 
             dataShopee={crawlingTimeShopee}
             labels={labels}
+            handleTimeRangeChange={(start, end) => {setTimeRange({ start, end })}}
           >
           </CrawlingTimeOverview>
         </Col>
@@ -214,107 +240,3 @@ export default function Dashboard({ smallStats, ...props }) {
     </Container>
   )
 }
-
-Dashboard.propTypes = {
-  /**
-   * The small stats dataset.
-   */
-  smallStats: PropTypes.array
-};
-
-Dashboard.defaultProps = {
-  smallStats: [
-    {
-      label: "Posts",
-      value: "2,390",
-      percentage: "4.7%",
-      increase: true,
-      attrs: { md: "6", sm: "6" },
-      // datasets: [
-      //   {
-      //     label: "Today",
-      //     fill: "start",
-      //     borderWidth: 1.5,
-      //     backgroundColor: "rgba(0, 184, 216, 0.1)",
-      //     borderColor: "rgb(0, 184, 216)",
-      //     data: [null, null]
-      //   }
-      // ]
-    },
-    {
-      label: "Pages",
-      value: "182",
-      percentage: "12.4",
-      increase: true,
-      chartLabels: [null, null, null, null, null, null, null],
-      attrs: { md: "6", sm: "6" },
-      datasets: [
-        {
-          label: "Today",
-          fill: "start",
-          borderWidth: 1.5,
-          backgroundColor: "rgba(23,198,113,0.1)",
-          borderColor: "rgb(23,198,113)",
-          data: [1, 2, 3, 3, 3, 4, 4]
-        }
-      ]
-    },
-    {
-      label: "Comments",
-      value: "8,147",
-      percentage: "3.8%",
-      increase: false,
-      decrease: true,
-      chartLabels: [null, null, null, null, null, null, null],
-      attrs: { md: "4", sm: "6" },
-      datasets: [
-        {
-          label: "Today",
-          fill: "start",
-          borderWidth: 1.5,
-          backgroundColor: "rgba(255,180,0,0.1)",
-          borderColor: "rgb(255,180,0)",
-          data: [2, 3, 3, 3, 4, 3, 3]
-        }
-      ]
-    },
-    {
-      label: "New Customers",
-      value: "29",
-      percentage: "2.71%",
-      increase: false,
-      decrease: true,
-      chartLabels: [null, null, null, null, null, null, null],
-      attrs: { md: "4", sm: "6" },
-      datasets: [
-        {
-          label: "Today",
-          fill: "start",
-          borderWidth: 1.5,
-          backgroundColor: "rgba(255,65,105,0.1)",
-          borderColor: "rgb(255,65,105)",
-          data: [1, 7, 1, 3, 1, 4, 8]
-        }
-      ]
-    },
-    {
-      label: "Subscribers",
-      value: "17,281",
-      percentage: "2.4%",
-      increase: false,
-      decrease: true,
-      chartLabels: [null, null, null, null, null, null, null],
-      attrs: { md: "4", sm: "6" },
-      datasets: [
-        {
-          label: "Today",
-          fill: "start",
-          borderWidth: 1.5,
-          backgroundColor: "rgb(0,123,255,0.1)",
-          borderColor: "rgb(0,123,255)",
-          data: [3, 2, 3, 2, 4, 5, 4]
-        }
-      ]
-    }
-  ]
-};

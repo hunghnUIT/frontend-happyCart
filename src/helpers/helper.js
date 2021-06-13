@@ -15,7 +15,7 @@ exports.formatDateTime = (date, formatRegion = 'en-GB') => {
 }
 
 /**
- * Convert a timestamp into human readable format
+ * Convert a timestamp into human readable format (HH:MM:SS)
  * @param {number} timestamp in millisecond
  * @returns String of time in human readable format
  */
@@ -28,6 +28,28 @@ exports.toHumanReadableTimeFormat = function (timestamp) {
     result += `${hour < 10 ? '0': ''}${hour}:`;
     result += `${min < 10 ? '0': ''}${min}:`;
     result += `${sec < 10 ? '0': ''}${sec}`;
+
+    return result;
+}
+
+/**
+ * Convert a timestamp into Vietnamese language
+ * @param {number} timestamp in millisecond
+ * @returns String of time in human readable format
+ */
+module.exports.toVietnameseTimeFormat = function (timestamp) {
+    const hour = Math.floor(timestamp / 3600000) % 24;
+    const min = Math.floor(timestamp / 60000) % 60;
+
+    let result = '';
+
+    if (hour)
+        result += `${hour} giờ`;
+    if (min) {
+        if (result)
+            result += ' ';
+        result += `${min} phút`;
+    }
 
     return result;
 }
