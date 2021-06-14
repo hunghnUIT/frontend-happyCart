@@ -25,9 +25,9 @@ exports.toHumanReadableTimeFormat = function (timestamp) {
     const sec = Math.floor(timestamp / 1000) % 60;
     let result = '';
 
-    result += `${hour < 10 ? '0': ''}${hour}:`;
-    result += `${min < 10 ? '0': ''}${min}:`;
-    result += `${sec < 10 ? '0': ''}${sec}`;
+    result += `${hour < 10 ? '0' : ''}${hour}:`;
+    result += `${min < 10 ? '0' : ''}${min}:`;
+    result += `${sec < 10 ? '0' : ''}${sec}`;
 
     return result;
 }
@@ -64,4 +64,8 @@ exports.calculatePercent = (num, total) => {
     return Number((num / total * 100).toFixed(1));
 }
 
-exports.formatNumber = (number) => new Intl.NumberFormat('de-DE').format(number)
+exports.formatNumber = (number) => new Intl.NumberFormat('de-DE').format(number);
+
+exports.capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}

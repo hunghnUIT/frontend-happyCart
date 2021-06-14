@@ -8,7 +8,7 @@ let _store = {
   navItems: [
     {
       title: "Tổng quan",
-      to: "/admin/overview",
+      to: "/admin/dashboard",
       htmlBefore: '<i class="material-icons">dashboard</i>',
       htmlAfter: ""
     },
