@@ -159,7 +159,7 @@ export default function Dashboard({ smallStats, ...props }) {
     <Container fluid className="main-content-container px-4">
       {/* Page Header */}
       <Row noGutters className="page-header py-4">
-        <PageTitle title="Hệ thống HappyCart" subtitle="Bảng điều khiển" className="text-sm-left mb-3" />
+        <PageTitle title="Hệ thống HappyCart" subtitle="Tổng quan" className="text-sm-left mb-3" />
       </Row>
   
       {/* Small Stats Blocks */}
