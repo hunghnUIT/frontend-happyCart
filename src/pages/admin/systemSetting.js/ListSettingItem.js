@@ -25,18 +25,33 @@ const useStyles = makeStyles({
 export default function ListSettingItem (props) {
     const classes = useStyles();
 
+    const handleOnValueChange = (id, newValue) => {
+        props.onValueChange(id, newValue);
+    }
+
+    /**
+     * NOTE: If JSX element contain input field. 
+     * Render method SHOULD NOT declared: RenderListItemSetting and call in render: <RenderListItemSetting/>
+     * SHOULD BE: renderListItemSetting (just like below) and call in render: {renderListItemSetting()}
+     * unless, input field will lose focus after typing 01 CHARACTER.
+     * -> Reason? Something related to render method corresponding to the way we call inside render method.
+     */
     const renderListItemSetting = () => {
-        return (props.listSettingItem.map(el => (
+        return (props.listSettingItem.map((el, idx) => (
             <SettingItem 
-                type={el.type} description={el.description} title={el.title}
+                key={idx}
+                id={el._id}
+                type={el.type} description={el.description} 
+                title={el.title} value={el.value}
+                onValueChange={(id, newValue) => {handleOnValueChange(id, newValue);}}
             />
         )))
     }
 
     return (
         <div >
-            <span id={props.categoryId} className={classes.anchor}></span>
-            <Typography variant='h5' className={classes.root}>{props.category}</Typography>
+            <span ref={props.refer} className={classes.anchor}></span>
+            <Typography variant='h5' className={classes.root + ' ' + (props.noMarginTop ? 'mt-0' : '')}>{props.category}</Typography>
             {renderListItemSetting()}
         </div>
     )

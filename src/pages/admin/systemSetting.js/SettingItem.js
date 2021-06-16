@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     TextField, Typography,
     makeStyles, Select,
@@ -8,23 +8,40 @@ import {
 const useStyles = makeStyles({
     root: {
         marginBottom: '10px',
-    }
+    },
+    title: {
+        fontWeight: 'bold',
+    },
 });
 
-export default function SystemSetting(props) {
+export default function SettingItem(props) {
     const classes = useStyles();
 
-    const RenderValueEditor = () => {
+    const [value, setValue] = useState('');
+
+    const handleOnValueChange = (el) => {
+        const newValue = el.target.value;
+        setValue(newValue);
+        props.onValueChange(props.id, newValue);
+    }
+
+    useEffect(() => {
+        setValue(props.value);
+    }, []); //eslint-disable-line
+
+    const renderValueEditor = () => {
         if (props.type === 'text')
             return (
                 <TextField
-                value='2' variant='outlined'
+                value={value} variant='outlined'
                 style={{ width: '100%' }}
                 inputProps={{
                     style: {
                         padding: 5
                     }
-                }}>
+                }}
+                onChange={(el) => { handleOnValueChange(el) }}
+                >
                 </TextField>
             )
         else
@@ -45,9 +62,9 @@ export default function SystemSetting(props) {
 
     return (
         <div className={classes.root}>
-            <Typography variant='subtitle1'>{props.title}</Typography>
+            <Typography variant='subtitle1' className={classes.title}>{props.title}</Typography>
             <Typography variant='body2'>{props.description}</Typography>
-            <RenderValueEditor/>
+            {renderValueEditor()}
         </div>
     )
 }

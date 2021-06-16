@@ -1,7 +1,9 @@
+import qs from 'query-string';
+
 import adminAxios from "../utils/adminAxios";
 import { 
     MY_ACCOUNT_INFO_URL, ADMIN_STATISTIC_URL,
-    ADMIN_USER_URL,
+    ADMIN_USER_URL, ADMIN_CONFIG_URL,
 } from "../settings";
 
 class adminApi {
@@ -19,6 +21,14 @@ class adminApi {
 
     deleteUser = (userId, params) => {
         return adminAxios.delete(`${ADMIN_USER_URL}/${userId}`, { params })
+    }
+
+    getConfigs = (params) => {
+        return adminAxios.get(ADMIN_CONFIG_URL, { params })
+    }
+
+    updateConfig = (configId, data, params) => {
+        return adminAxios.put(`${ADMIN_CONFIG_URL}/${configId}`, qs.stringify(data), { params })
     }
 }
 export default new adminApi();
