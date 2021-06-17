@@ -40,12 +40,13 @@ export default function Admin({...props}) {
             {routes.map((route, index) => {
                 return (
                     <Route
+                        history={props.history}
                         key={index}
                         path={`${props.match.path}${route.path}`}
                         exact={route.exact}
                         component={props => {
                             return (
-                                <route.layout {...props}>
+                                <route.layout {...props} history={props.history}>
                                     <route.component {...props} />
                                 </route.layout>
                             );

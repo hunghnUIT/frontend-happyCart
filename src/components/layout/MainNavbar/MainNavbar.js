@@ -7,7 +7,7 @@ import NavbarSearch from "./NavbarSearch";
 import NavbarNav from "./NavbarNav/NavbarNav";
 import NavbarToggle from "./NavbarToggle";
 
-const MainNavbar = ({ layout, stickyTop }) => {
+const MainNavbar = ({ layout, stickyTop,...props }) => {
   const classes = classNames(
     "main-navbar",
     "bg-white",
@@ -19,7 +19,7 @@ const MainNavbar = ({ layout, stickyTop }) => {
       <Container className="p-0">
         <Navbar type="light" className="align-items-stretch flex-md-nowrap p-0">
           <NavbarSearch />
-          <NavbarNav />
+          <NavbarNav history={props.history}/>
           <NavbarToggle />
         </Navbar>
       </Container>

@@ -6,7 +6,7 @@ import MainNavbar from "../components/layout/MainNavbar/MainNavbar";
 import MainSidebar from "../components/layout/MainSidebar/MainSidebar";
 import MainFooter from "../components/layout/MainFooter";
 
-const DefaultLayout = ({ children, noNavbar, noFooter }) => (
+const DefaultLayout = ({ children, noNavbar, noFooter, ...props }) => (
   <Container fluid>
     <Row>
       <MainSidebar />
@@ -17,7 +17,7 @@ const DefaultLayout = ({ children, noNavbar, noFooter }) => (
         sm="12"
         tag="main"
       >
-        {!noNavbar && <MainNavbar />}
+        {!noNavbar && <MainNavbar history={props.history}/>}
         {children}
         {!noFooter && <MainFooter />}
       </Col>

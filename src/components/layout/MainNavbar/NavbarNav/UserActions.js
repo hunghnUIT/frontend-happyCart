@@ -10,12 +10,15 @@ import {
   NavLink
 } from "shards-react";
 
+import auth from '../../../../auth/auth';
+
 export default class UserActions extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      visible: false
+      visible: false,
+      user: localStorage.getItem('name'),
     };
 
     this.toggleUserActions = this.toggleUserActions.bind(this);
@@ -27,22 +30,26 @@ export default class UserActions extends React.Component {
     });
   }
 
+  handleLogout = () => {
+    auth.logout(() => { this.props.history.push("/admin/login") });
+  }
+
   render() {
     return (
       <NavItem tag={Dropdown} caret toggle={this.toggleUserActions}>
         <DropdownToggle caret tag={NavLink} className="text-nowrap px-3">
-          <img
+          {/* <img
             className="user-avatar rounded-circle mr-2"
             // src={require("./../../../../images/avatars/0.jpg")}
             alt="User Avatar"
-          />{" "}
-          <span className="d-none d-md-inline-block">Sierra Brooks</span>
+          />{" "} */}
+          <span className="d-none d-md-inline-block">{this.state.user}</span>
         </DropdownToggle>
         <Collapse tag={DropdownMenu} right small open={this.state.visible}>
           <DropdownItem tag={Link} to="user-profile">
             <i className="material-icons">&#xE7FD;</i> Profile
           </DropdownItem>
-          <DropdownItem tag={Link} to="edit-user-profile">
+          {/*<DropdownItem tag={Link} to="edit-user-profile">
             <i className="material-icons">&#xE8B8;</i> Edit Profile
           </DropdownItem>
           <DropdownItem tag={Link} to="file-manager-list">
@@ -50,9 +57,9 @@ export default class UserActions extends React.Component {
           </DropdownItem>
           <DropdownItem tag={Link} to="transaction-history">
             <i className="material-icons">&#xE896;</i> Transactions
-          </DropdownItem>
+          </DropdownItem> */}
           <DropdownItem divider />
-          <DropdownItem tag={Link} to="/" className="text-danger">
+          <DropdownItem tag={Link} to="#" className="text-danger" onClick={this.handleLogout}>
             <i className="material-icons text-danger">&#xE879;</i> Logout
           </DropdownItem>
         </Collapse>
