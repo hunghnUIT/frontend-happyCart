@@ -5,6 +5,7 @@ import {
 
 
 import SettingItem from './SettingItem';
+import EditSettingItem from './EditSettingItem';
 
 
 const useStyles = makeStyles({
@@ -37,14 +38,25 @@ export default function ListSettingItem (props) {
      * -> Reason? Something related to render method corresponding to the way we call inside render method.
      */
     const renderListItemSetting = () => {
-        return (props.listSettingItem.map((el, idx) => (
-            <SettingItem 
-                key={idx}
-                id={el._id}
-                type={el.type} description={el.description} 
-                title={el.title} value={el.value}
-                onValueChange={(id, newValue) => {handleOnValueChange(id, newValue);}}
-            />
+        if (!props.isEditMode)
+            return (props.listSettingItem.map((el, idx) => (
+                <SettingItem 
+                    key={idx}
+                    id={el._id}
+                    type={el.type} description={el.description} 
+                    title={el.title} value={el.value}
+                    onValueChange={(id, newValue) => {handleOnValueChange(id, newValue);}}
+                />)))
+        else
+            return (props.listSettingItem.map((el, idx) => (
+                <EditSettingItem 
+                    key={idx}
+                    id={el._id}
+                    type={el.type} description={el.description} 
+                    title={el.title} value={el.value}
+                    onValueChange={(id, newValue) => {handleOnValueChange(id, newValue);}}
+                    onInfoChange={(id, newInfoObj) => {props.onInfoChange(id, newInfoObj)}}
+                />    
         )))
     }
 

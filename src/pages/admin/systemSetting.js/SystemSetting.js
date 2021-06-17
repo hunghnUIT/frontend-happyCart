@@ -25,7 +25,7 @@ const useStyles = makeStyles({
     },
     menuSide: {
         position: "fixed",
-        padding: '5px 20px 20px 25px',
+        padding: '8px 20px 20px 25px',
         display: 'block',
     },
     settingItemSide: {
@@ -49,6 +49,10 @@ export default function SystemSetting(props) {
     const [configs, setConfigs] = useState({});
     const [filteredConfigs, setFilteredConfigs] = useState([]);
     const [listEdited, setListEdited] = useState({});
+    const [listEditedInfo, setListEditedInfo] = useState({});
+
+    // For changing to edit mode
+    const [isEditMode, setEditMode] = useState(false);
 
     // For searching
     const [searchTerm, setSearchTerm] = useState('');
@@ -64,6 +68,23 @@ export default function SystemSetting(props) {
             ...listEdited,
             [id]: newValue,
         })        
+    }
+
+    const handleEditInfo = (id, newInfoObj) => {
+        setListEditedInfo({
+            ...listEditedInfo,
+            [id]: {
+                ...listEditedInfo[id],
+                ...newInfoObj,
+            }
+        })
+    }
+
+    const handleClickSaveButton = () => {
+        if (!isEditMode) 
+            handleUpdateValue();
+        else
+            handleUpdateInfo();
     }
 
     const handleUpdateValue = async () => {
@@ -99,8 +120,45 @@ export default function SystemSetting(props) {
 
         // reset stuff
         setListEdited({});
-        if (failedCount)
-            setUpdateConfig(updateConfig + 1);
+        // if (failedCount)
+        setUpdateConfig(updateConfig + 1);
+    }
+
+    const handleUpdateInfo = async () => {
+        let failedIds = [];
+        let successCount = 0;
+        for (const key in listEditedInfo) {
+            const resp = await adminApi.updateConfig(key, { ...listEditedInfo[key] }).catch(err => {
+                console.log(err.message)
+                failedIds.push(key);
+            });
+
+            if (resp?.success) {
+                successCount += 1;
+            }
+        }
+
+        if (failedIds.length) {
+            for (const key of failedIds) {
+                const resp = await adminApi.updateConfig(key, { value: listEditedInfo[key] }).catch(err => {
+                    console.log(err.message)
+                });
+    
+                if (resp?.success) {
+                    successCount += 1;
+                }
+            }
+        }
+
+        // alert
+        const failedCount = Object.keys(listEditedInfo) - successCount;
+        const msg = `Cập nhật thành công ${successCount} mục. ${failedCount ? `Cập nhật thất bại ${failedCount} mục.` : ''}`;
+        alert(msg);
+
+        // reset stuff
+        setListEditedInfo({});
+        // if (failedCount)
+        setUpdateConfig(updateConfig + 1);
     }
 
     const handleSearchConfig = (term) => {
@@ -156,17 +214,19 @@ export default function SystemSetting(props) {
         for (const key in filteredConfigs) {
             if (index === 0)
                 result.push(<ListSettingItem 
-                    key={index}
+                    key={index} isEditMode={isEditMode}
                     category={key} refer={listRef[key]} 
                     listSettingItem={filteredConfigs[key]} noMarginTop={true}
                     onValueChange={(id, newValue) => {handleEditValue(id, newValue)}}
+                    onInfoChange={(id, infoObj) => {handleEditInfo(id, infoObj)}}
                 />)
             else
                 result.push(<ListSettingItem 
-                    key={index}
+                    key={index} isEditMode={isEditMode}
                     category={key} refer={listRef[key]} 
                     listSettingItem={filteredConfigs[key]}
                     onValueChange={(id, newValue) => {handleEditValue(id, newValue)}}
+                    onInfoChange={(id, infoObj) => {handleEditInfo(id, infoObj)}}
                 />)
 
             index += 1;
@@ -210,12 +270,12 @@ export default function SystemSetting(props) {
                                 { renderNavSideMenu() }
                             </ul>
                             <hr/>
-                            <Button onClick={handleUpdateValue}>
-                                <SaveIcon className='mr-1'/> Save Settings
+                            <Button onClick={handleClickSaveButton}>
+                                <SaveIcon className='mr-1'/> Lưu {isEditMode ? 'thay đổi' : 'cài đặt'}
                             </Button>
                             <br/>
-                            <Button>
-                                <EditIcon className='mr-1'/> Edit Settings
+                            <Button onClick={() => {setEditMode(!isEditMode)}}>
+                                <EditIcon className='mr-1'/> Thay đổi {isEditMode ? 'cài đặt' : 'mô tả'}
                             </Button>
                         </div>
                     </Grid>
