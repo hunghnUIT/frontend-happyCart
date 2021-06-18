@@ -30,5 +30,9 @@ class adminApi {
     updateConfig = (configId, data, params) => {
         return adminAxios.put(`${ADMIN_CONFIG_URL}/${configId}`, qs.stringify(data), { params })
     }
+
+    createConfig = (data) => {
+        return adminAxios.post(ADMIN_CONFIG_URL, JSON.stringify(data), { customConfig: { contentType: 'application/json' } })
+    }
 }
 export default new adminApi();

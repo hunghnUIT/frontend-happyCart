@@ -3,17 +3,21 @@ import {
     Grid, Toolbar,
     Card, Paper,
     InputBase, IconButton,
-    Button,
+    Button, Switch, 
+    TextField, FormControlLabel, 
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import SaveIcon from '@material-ui/icons/Save';
 import EditIcon from '@material-ui/icons/Edit';
+import AddIcon from '@material-ui/icons/Add';
 import { makeStyles } from '@material-ui/styles';
 import { Row, Container } from 'shards-react';
+import { Modal, } from 'react-bootstrap';
 
 import PageTitle from '../../../components/common/PageTitle';
 import ListSettingItem from './ListSettingItem';
 import adminApi from '../../../api/adminApi';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const useStyles = makeStyles({
     searchBarPaper: {
@@ -38,6 +42,9 @@ const useStyles = makeStyles({
     navLink: {
         color: 'black',
         textDecoration: 'none !important',
+    },
+    modalContainer: {
+        // backgroundColor: '#cfcfcf',
     }
 })
 
@@ -58,11 +65,16 @@ export default function SystemSetting(props) {
     const [searchTerm, setSearchTerm] = useState('');
 
     // Update data
-    const [updateConfig, setUpdateConfig] = useState(0); // A state just for triggering.
+    const [updateSystemSetting, setUpdateSystemSetting] = useState(0); // A state just for triggering.
 
     // For reference
     const [listRef, setListRef] = useState({});
 
+    // For modal
+    const [isShowModal, setShowModal] = useState(false);
+    const [inputModal, setInputModal] = useState({ type: 'text' });
+    const [checked, setChecked] = useState(false);
+    
     const handleEditValue = (id, newValue) => {
         setListEdited({
             ...listEdited,
@@ -121,7 +133,7 @@ export default function SystemSetting(props) {
         // reset stuff
         setListEdited({});
         // if (failedCount)
-        setUpdateConfig(updateConfig + 1);
+        setUpdateSystemSetting(updateSystemSetting + 1);
     }
 
     const handleUpdateInfo = async () => {
@@ -158,7 +170,7 @@ export default function SystemSetting(props) {
         // reset stuff
         setListEditedInfo({});
         // if (failedCount)
-        setUpdateConfig(updateConfig + 1);
+        setUpdateSystemSetting(updateSystemSetting + 1);
     }
 
     const handleSearchConfig = (term) => {
@@ -186,6 +198,44 @@ export default function SystemSetting(props) {
             setFilteredConfigs(configs);
     }
 
+    const handleChangeValueInputModal = (key, value) => {
+        switch (key) {
+            case 'type':
+                setChecked(!checked)
+                value = value ? 'boolean' : 'text';
+                break;
+            case 'affect':
+                value = (value.split(',')).map(el => el.toLowerCase().trim());
+                break;
+            default:
+                break;
+        }
+
+        setInputModal({
+            ...inputModal,
+            [key]: value,
+        })
+    }
+
+    const handleCreateSetting = () => {
+        if (Object.keys(inputModal).length < 7)
+            alert('Tât cả các trường không được bỏ trống.')
+        else {
+            adminApi.createConfig(inputModal).then(resp => {
+                if (resp?.success) {
+                    alert('Tạo mới thành công');
+                    setShowModal(false);
+                    setUpdateSystemSetting(1); // Trigger reload this page
+                }
+            }).catch(err => {
+                if (err.response.status > 500)
+                    alert('Tạo mới cài đặt thất bại. Hãy thử lại.')
+                else 
+                    alert(err.message);
+            }); 
+        }
+    }
+
     useEffect(() => {
         adminApi.getConfigs().then(resp => {
             if (resp.success) {
@@ -206,7 +256,7 @@ export default function SystemSetting(props) {
                 setListRef(refs);
             }
         })
-    }, [updateConfig])
+    }, [updateSystemSetting])
 
     const renderListSettingItem = () => {
         let result = [];
@@ -277,6 +327,10 @@ export default function SystemSetting(props) {
                             <Button onClick={() => {setEditMode(!isEditMode)}}>
                                 <EditIcon className='mr-1'/> Thay đổi {isEditMode ? 'cài đặt' : 'mô tả'}
                             </Button>
+                            <br/>
+                            <Button onClick={() => {setShowModal(!isEditMode)}}>
+                                <AddIcon className='mr-1'/> Thêm cài đặt mới
+                            </Button>
                         </div>
                     </Grid>
                     <Grid item sm={11} lg={10} className={classes.settingItemSide}>
@@ -284,6 +338,118 @@ export default function SystemSetting(props) {
                     </Grid>
                 </Grid>
             </Card>
+            <Modal dialogClassName={classes.modal} className={classes.modalContainer}
+                show={isShowModal}
+                onHide={() => {setShowModal(false)}}
+                aria-hidden='true'
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Thêm cài đặt mới</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className='pb-0'>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <TextField
+                                name="name"
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="title"
+                                label="Tên của cài đặt"
+                                autoFocus
+                                onChange={(el) => {handleChangeValueInputModal(el.target.name, el.target.value)}}
+                                size="normal" 
+                                value={inputModal['name']}
+                                helperText='Được viết theo dạng snake_case và bằng tiếng Anh.'
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                name="title"
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="title"
+                                label="Tiêu đề"
+                                autoFocus
+                                onChange={(el) => {handleChangeValueInputModal(el.target.name, el.target.value)}}
+                                size="normal" 
+                                value={inputModal['title']}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                name="description"
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="description"
+                                label="Mô tả"
+                                onChange={(el) => {handleChangeValueInputModal(el.target.name, el.target.value)}}
+                                size="normal"
+                                value={inputModal['description']}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                name="value"
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="value"
+                                label="Giá trị"
+                                onChange={(el) => {handleChangeValueInputModal(el.target.name, el.target.value)}}
+                                size="normal"
+                                value={inputModal['value']}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                name="affect"
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="affect"
+                                label="Đối tượng ảnh hưởng đến"
+                                onChange={(el) => {handleChangeValueInputModal(el.target.name, el.target.value)}}
+                                size="normal"
+                                value={inputModal['affect']}
+                                helperText='Các đối tượng ngăn cách nhau bởi dấu phẩy ( , )'
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                name="category"
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="category"
+                                label="Danh mục"
+                                onChange={(el) => {handleChangeValueInputModal(el.target.name, el.target.value)}}
+                                size="normal"
+                                value={inputModal['category']}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <FormControlLabel
+                                control={<Switch 
+                                    name='type'
+                                    checked={checked} 
+                                    onChange={(el) => {handleChangeValueInputModal(el.target.name, el.target.checked)}}
+                                />}
+                                label={`Kiểu dữ liệu Boolean ${checked ? '' : '(Mặc định là kiểu chữ/số)'}`}
+                            />
+                        </Grid>
+                    </Grid>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button className={`${classes.updateButton} ${classes.buttonFooter}`} 
+                        onClick={handleCreateSetting}
+                    >
+                        Thêm cài đặt
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     )
 }

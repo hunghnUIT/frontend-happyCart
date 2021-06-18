@@ -15,6 +15,7 @@ const axiosClient = axios.create({
 });
 
 axiosClient.interceptors.request.use(async (config) => {
+    const { contentType } = {...config.customConfig};
     // Every requests by admin need token so far.
     await auth.verifyAccessToken()
     config.headers = {
@@ -22,6 +23,10 @@ axiosClient.interceptors.request.use(async (config) => {
         'Accept': 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded'
     }
+
+    if (contentType)
+        config.headers['Content-Type'] = contentType;
+
     return config;
 },
     error => {
