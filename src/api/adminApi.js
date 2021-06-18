@@ -1,5 +1,3 @@
-import qs from 'query-string';
-
 import adminAxios from "../utils/adminAxios";
 import { 
     MY_ACCOUNT_INFO_URL, ADMIN_STATISTIC_URL,
@@ -27,8 +25,8 @@ class adminApi {
         return adminAxios.get(ADMIN_CONFIG_URL, { params })
     }
 
-    updateConfig = (configId, data, params) => {
-        return adminAxios.put(`${ADMIN_CONFIG_URL}/${configId}`, qs.stringify(data), { params })
+    updateConfig = (configId, data) => {
+        return adminAxios.put(`${ADMIN_CONFIG_URL}/${configId}`, JSON.stringify(data), { customConfig: { contentType: 'application/json' } })
     }
 
     createConfig = (data) => {

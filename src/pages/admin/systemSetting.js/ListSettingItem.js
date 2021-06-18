@@ -26,10 +26,6 @@ const useStyles = makeStyles({
 export default function ListSettingItem (props) {
     const classes = useStyles();
 
-    const handleOnValueChange = (id, newValue) => {
-        props.onValueChange(id, newValue);
-    }
-
     /**
      * NOTE: If JSX element contain input field. 
      * Render method SHOULD NOT declared: RenderListItemSetting and call in render: <RenderListItemSetting/>
@@ -45,16 +41,17 @@ export default function ListSettingItem (props) {
                     id={el._id}
                     type={el.type} description={el.description} 
                     title={el.title} value={el.value}
-                    onValueChange={(id, newValue) => {handleOnValueChange(id, newValue);}}
+                    name={el.name} affect={el.affect}
+                    onInfoChange={(id, newInfoObj) => {props.onInfoChange(id, newInfoObj)}}
                 />)))
         else
             return (props.listSettingItem.map((el, idx) => (
                 <EditSettingItem 
                     key={idx}
-                    id={el._id}
+                    id={el._id} category={el.category}
                     type={el.type} description={el.description} 
                     title={el.title} value={el.value}
-                    onValueChange={(id, newValue) => {handleOnValueChange(id, newValue);}}
+                    name={el.name} affect={el.affect}
                     onInfoChange={(id, newInfoObj) => {props.onInfoChange(id, newInfoObj)}}
                 />    
         )))

@@ -5,6 +5,7 @@ import {
     InputBase, IconButton,
     Button, Switch, 
     TextField, FormControlLabel, 
+    
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import SaveIcon from '@material-ui/icons/Save';
@@ -55,7 +56,6 @@ export default function SystemSetting(props) {
     // For data
     const [configs, setConfigs] = useState({});
     const [filteredConfigs, setFilteredConfigs] = useState([]);
-    const [listEdited, setListEdited] = useState({});
     const [listEditedInfo, setListEditedInfo] = useState({});
 
     // For changing to edit mode
@@ -75,13 +75,6 @@ export default function SystemSetting(props) {
     const [inputModal, setInputModal] = useState({ type: 'text' });
     const [checked, setChecked] = useState(false);
     
-    const handleEditValue = (id, newValue) => {
-        setListEdited({
-            ...listEdited,
-            [id]: newValue,
-        })        
-    }
-
     const handleEditInfo = (id, newInfoObj) => {
         setListEditedInfo({
             ...listEditedInfo,
@@ -92,51 +85,7 @@ export default function SystemSetting(props) {
         })
     }
 
-    const handleClickSaveButton = () => {
-        if (!isEditMode) 
-            handleUpdateValue();
-        else
-            handleUpdateInfo();
-    }
-
-    const handleUpdateValue = async () => {
-        let failedIds = [];
-        let successCount = 0;
-        for (const key in listEdited) {
-            const resp = await adminApi.updateConfig(key, { value: listEdited[key] }).catch(err => {
-                console.log(err.message)
-                failedIds.push(key);
-            });
-
-            if (resp?.success) {
-                successCount += 1;
-            }
-        }
-
-        if (failedIds.length) {
-            for (const key of failedIds) {
-                const resp = await adminApi.updateConfig(key, { value: listEdited[key] }).catch(err => {
-                    console.log(err.message)
-                });
-    
-                if (resp?.success) {
-                    successCount += 1;
-                }
-            }
-        }
-
-        // alert
-        const failedCount = Object.keys(listEdited) - successCount;
-        const msg = `Cập nhật thành công ${successCount} mục. ${failedCount ? `Cập nhật thất bại ${failedCount} mục.` : ''}`;
-        alert(msg);
-
-        // reset stuff
-        setListEdited({});
-        // if (failedCount)
-        setUpdateSystemSetting(updateSystemSetting + 1);
-    }
-
-    const handleUpdateInfo = async () => {
+    const handleClickSaveButton = async () => {
         let failedIds = [];
         let successCount = 0;
         for (const key in listEditedInfo) {
@@ -152,7 +101,7 @@ export default function SystemSetting(props) {
 
         if (failedIds.length) {
             for (const key of failedIds) {
-                const resp = await adminApi.updateConfig(key, { value: listEditedInfo[key] }).catch(err => {
+                const resp = await adminApi.updateConfig(key, { ...listEditedInfo[key] }).catch(err => {
                     console.log(err.message)
                 });
     
@@ -169,8 +118,8 @@ export default function SystemSetting(props) {
 
         // reset stuff
         setListEditedInfo({});
-        // if (failedCount)
-        setUpdateSystemSetting(updateSystemSetting + 1);
+        if (successCount)
+            setUpdateSystemSetting(updateSystemSetting + 1);
     }
 
     const handleSearchConfig = (term) => {
@@ -262,22 +211,12 @@ export default function SystemSetting(props) {
         let result = [];
         let index = 0;
         for (const key in filteredConfigs) {
-            if (index === 0)
-                result.push(<ListSettingItem 
-                    key={index} isEditMode={isEditMode}
-                    category={key} refer={listRef[key]} 
-                    listSettingItem={filteredConfigs[key]} noMarginTop={true}
-                    onValueChange={(id, newValue) => {handleEditValue(id, newValue)}}
-                    onInfoChange={(id, infoObj) => {handleEditInfo(id, infoObj)}}
-                />)
-            else
-                result.push(<ListSettingItem 
-                    key={index} isEditMode={isEditMode}
-                    category={key} refer={listRef[key]} 
-                    listSettingItem={filteredConfigs[key]}
-                    onValueChange={(id, newValue) => {handleEditValue(id, newValue)}}
-                    onInfoChange={(id, infoObj) => {handleEditInfo(id, infoObj)}}
-                />)
+            result.push(<ListSettingItem 
+                key={index} isEditMode={isEditMode}
+                category={key} refer={listRef[key]} 
+                listSettingItem={filteredConfigs[key]} noMarginTop={index === 0 ? true : false}
+                onInfoChange={(id, infoObj) => {handleEditInfo(id, infoObj)}}
+            />)
 
             index += 1;
         }

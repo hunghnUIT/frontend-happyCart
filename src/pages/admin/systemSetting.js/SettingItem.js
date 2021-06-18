@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
     TextField, Typography,
     makeStyles, Select,
+    Grid,
 } from '@material-ui/core';
 
 
@@ -18,45 +19,67 @@ export default function SettingItem(props) {
     const classes = useStyles();
 
     const [value, setValue] = useState('');
+    const [name, setName] = useState('');
+    const [affect, setAffect] = useState([]);
 
     const handleOnValueChange = (el) => {
-        const newValue = el.target.value;
-        setValue(newValue);
-        props.onValueChange(props.id, newValue);
+        const targetName = el.target.name;
+        let newValue = el.target.value;
+        switch (targetName) {
+            case 'value':
+                setValue(newValue);
+                break;
+            case 'name':
+                setName(newValue);
+                break;
+            case 'affect':
+                newValue = newValue.split(',');
+                newValue = newValue.map(el => el.toLowerCase().trim());
+                setAffect(newValue);
+                break;
+            default:
+                break;
+        }
+        // props.onValueChange(props.id, newValue);
+        props.onInfoChange(props.id, { [targetName]: newValue })
     }
 
     useEffect(() => {
         setValue(props.value);
+        setName(props.name);
+        setAffect(props.affect);
     }, []); //eslint-disable-line
 
-    const renderValueEditor = () => {
-        if (props.type === 'text')
+    const renderValueEditor = (value, name, label, type) => {
+        if (type === 'boolean')
             return (
-                <TextField
-                value={value} variant='outlined'
-                style={{ width: '100%' }}
-                inputProps={{
-                    style: {
-                        padding: 5
-                    }
-                }}
-                onChange={(el) => { handleOnValueChange(el) }}
+                <Select
+                    native
+                    // value={state.age}
+                    // onChange={handleChange}
+                    // inputProps={{
+                    // }}
+                    style={{ width: '20%' }}
                 >
-                </TextField>
+                        <option value={true}>Active</option>
+                        <option value={false}>Disable</option>
+                </Select>
             )
         else
             return (
-            <Select
-                native
-                // value={state.age}
-                // onChange={handleChange}
-                // inputProps={{
-                // }}
-                style={{ width: '20%' }}
-            >
-                    <option value={true}>Active</option>
-                    <option value={false}>Disable</option>
-            </Select>
+                <TextField
+                    name={name}
+                    value={value} variant='outlined'
+                    style={{ width: '100%' }}
+                    inputProps={{
+                        style: {
+                            padding: 10
+                        }
+                    }}
+                    label={label}
+                    onChange={(el) => { handleOnValueChange(el) }}
+                >
+                </TextField>
             )
     }
 
@@ -64,7 +87,17 @@ export default function SettingItem(props) {
         <div className={classes.root}>
             <Typography variant='subtitle1' className={classes.title}>{props.title}</Typography>
             <Typography variant='body2'>{props.description}</Typography>
-            {renderValueEditor()}
+            <Grid container spacing={2} style={{marginTop: '5px'}}>
+                <Grid item xs={12} lg={4}>
+                    {renderValueEditor(value, 'value', 'Giá trị', props.type)}
+                </Grid>
+                <Grid item xs={12} lg={4}>
+                    {renderValueEditor(name, 'name', 'Tên cài đặt')}
+                </Grid>
+                <Grid item xs={12} lg={4}>
+                    {renderValueEditor(affect, 'affect', 'Đối tượng ảnh hưởng')}
+                </Grid>
+            </Grid>
         </div>
     )
 }
