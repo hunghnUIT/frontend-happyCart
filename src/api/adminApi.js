@@ -32,5 +32,9 @@ class adminApi {
     createConfig = (data) => {
         return adminAxios.post(ADMIN_CONFIG_URL, JSON.stringify(data), { customConfig: { contentType: 'application/json' } })
     }
+
+    deleteConfig = (configId) => {
+        return adminAxios.delete(`${ADMIN_CONFIG_URL}/${configId}`)
+    }
 }
 export default new adminApi();

@@ -3,20 +3,23 @@ import {
     Grid, Toolbar,
     Card, Paper,
     InputBase, IconButton,
-    Button, Switch, 
-    TextField, FormControlLabel, 
-    
+    Button, Switch,
+    TextField, FormControlLabel,
+
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import SaveIcon from '@material-ui/icons/Save';
 import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
+import DeleteIcon from '@material-ui/icons/Delete';
+import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import { makeStyles } from '@material-ui/styles';
 import { Row, Container } from 'shards-react';
 import { Modal, } from 'react-bootstrap';
 
 import PageTitle from '../../../components/common/PageTitle';
 import ListSettingItem from './ListSettingItem';
+import DeleteSettingItemView from './DeleteSettingItemView';
 import adminApi from '../../../api/adminApi';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -60,12 +63,14 @@ export default function SystemSetting(props) {
 
     // For changing to edit mode
     const [isEditMode, setEditMode] = useState(false);
+    // For changing to delete item mode
+    const [isDeleteMode, setDeleteMode] = useState(false);
 
     // For searching
     const [searchTerm, setSearchTerm] = useState('');
 
     // Update data
-    const [updateSystemSetting, setUpdateSystemSetting] = useState(0); // A state just for triggering.
+    const [updateSystemSetting, doUpdateSystemSetting] = useState(0); // A state just for triggering.
 
     // For reference
     const [listRef, setListRef] = useState({});
@@ -74,7 +79,12 @@ export default function SystemSetting(props) {
     const [isShowModal, setShowModal] = useState(false);
     const [inputModal, setInputModal] = useState({ type: 'text' });
     const [checked, setChecked] = useState(false);
-    
+
+    // For selecting configs
+    const [selected, setSelected] = useState([]);
+    // For trigger updating deleting setting item view.
+    const [resetSelectedDeletingSettingView, doResetSelectedDeletingSettingView] = useState('');
+
     const handleEditInfo = (id, newInfoObj) => {
         setListEditedInfo({
             ...listEditedInfo,
@@ -104,7 +114,7 @@ export default function SystemSetting(props) {
                 const resp = await adminApi.updateConfig(key, { ...listEditedInfo[key] }).catch(err => {
                     console.log(err.message)
                 });
-    
+
                 if (resp?.success) {
                     successCount += 1;
                 }
@@ -119,7 +129,7 @@ export default function SystemSetting(props) {
         // reset stuff
         setListEditedInfo({});
         if (successCount)
-            setUpdateSystemSetting(updateSystemSetting + 1);
+            doUpdateSystemSetting(updateSystemSetting + 1);
     }
 
     const handleSearchConfig = (term) => {
@@ -130,20 +140,20 @@ export default function SystemSetting(props) {
                 const temp = configs[key].filter((config, idx) => {
                     // const title = (config?.title || '').toLowerCase();
                     // const description = (config?.description || '').toLowerCase();
-                if ((config?.title.toLowerCase())?.includes(term) || (config?.description.toLowerCase()).includes(term))
-                    return config;
+                    if ((config?.title.toLowerCase())?.includes(term) || (config?.description.toLowerCase()).includes(term))
+                        return config;
                 });
                 result[key] = temp;
             }
-    
+
             for (const key in result) {
                 if (!result[key].length)
                     delete result[key];
             }
-    
+
             setFilteredConfigs(result);
         }
-        else 
+        else
             setFilteredConfigs(configs);
     }
 
@@ -173,15 +183,69 @@ export default function SystemSetting(props) {
             adminApi.createConfig(inputModal).then(resp => {
                 if (resp?.success) {
                     alert('Tạo mới thành công');
+                    setInputModal({ type: 'text' });
                     setShowModal(false);
-                    setUpdateSystemSetting(1); // Trigger reload this page
+                    doUpdateSystemSetting(updateSystemSetting + 1); // Trigger reload this page
                 }
             }).catch(err => {
                 if (err.response.status > 500)
                     alert('Tạo mới cài đặt thất bại. Hãy thử lại.')
-                else 
+                else
                     alert(err.message);
-            }); 
+            });
+        }
+    }
+
+    const handleDeleteConfig = async () => {
+        const len = selected.length;
+        if (!len)
+            alert('Bạn chưa chọn mục để xóa'); 
+        else if (len && window.confirm(`Bạn sắp xóa ${len} cài đặt ra khỏi CSDL. Hãy lưu ý những dữ liệu này sẽ KHÔNG THỂ KHÔI PHỤC. Bạn muốn tiếp tục?`)) {
+            const confirmStr = `xóa ${len} cài đặt`;
+            let confirm = window.prompt(`Hãy nhập vào ô bên dưới "${confirmStr}" để xác nhận.`)
+            if (confirm === confirmStr.toLowerCase()) {
+                let succeedId = [];
+                let failedId = [];
+                for (const id of selected) {
+                    try {
+                        const resp = await adminApi.deleteConfig(id);
+                        if (resp.success)
+                            succeedId.push(id);
+                    } catch (error) {
+                        console.log(error.message);
+                        failedId.push(id);
+                    }
+                }
+
+                const failedLen = failedId.length;
+                if (failedLen && window.confirm(`Xóa thất bại ${failedLen} cài đặt. Bạn có muốn thử lại?`)) {
+                    let countResult = 0;
+                    for (const id of failedId) {
+                        try {
+                            const resp = await adminApi.deleteConfig(id);
+                            if (resp?.success) {
+                                succeedId.push(id);
+                                countResult += 1;
+                            }
+                        } catch (error) {
+                            console.log(error.message);
+                        }
+                    }
+
+                    if (countResult < failedLen)
+                        alert(`Không thể xóa ${failedLen - countResult} cài đặt. Hãy thử lại sau.`)
+                }
+                if (succeedId.length)
+                    alert(`Đã xóa xong ${succeedId.length} cài đặt`);
+
+                setSelected([]);
+                doUpdateSystemSetting(updateSystemSetting + 1);
+
+                // Dumb way, but I'm too lazy to make it better. Easiest way is move this handleDeleteConfig function to child.
+                doResetSelectedDeletingSettingView(resetSelectedDeletingSettingView + 1);
+            }
+            else if (confirm !== null && confirm !== confirmStr.toLowerCase())
+                alert('Câu lệnh xác nhận chưa đúng.')
         }
     }
 
@@ -207,24 +271,36 @@ export default function SystemSetting(props) {
         })
     }, [updateSystemSetting])
 
-    const renderListSettingItem = () => {
+    const renderContentListSettingItem = () => {
         let result = [];
         let index = 0;
-        for (const key in filteredConfigs) {
-            result.push(<ListSettingItem 
-                key={index} isEditMode={isEditMode}
-                category={key} refer={listRef[key]} 
-                listSettingItem={filteredConfigs[key]} noMarginTop={index === 0 ? true : false}
-                onInfoChange={(id, infoObj) => {handleEditInfo(id, infoObj)}}
-            />)
+        if (!isDeleteMode) {
+            for (const key in filteredConfigs) {
+                result.push(<ListSettingItem
+                    key={index} isEditMode={isEditMode}
+                    category={key} refer={listRef[key]}
+                    listSettingItem={filteredConfigs[key]} noMarginTop={index === 0 ? true : false}
+                    onInfoChange={(id, infoObj) => { handleEditInfo(id, infoObj) }}
+                />)
 
-            index += 1;
+                index += 1;
+            }
         }
+        else
+            result.push(
+            <DeleteSettingItemView
+                listSettingItem={filteredConfigs}
+                onSelectSetting={(list) => {
+                    console.log(list)
+                    setSelected(list); 
+                }}
+                resetSelected={resetSelectedDeletingSettingView}
+            />)
         return result;
     }
 
     const renderNavSideMenu = () => {
-        return Object.keys(filteredConfigs).map((key, idx) => <li key={idx}><a className={classes.navLink} ref={listRef[key]} onClick={() => {listRef[key].current.scrollIntoView()}}>{key}</a></li>); //eslint-disable-line
+        return Object.keys(filteredConfigs).map((key, idx) => <li key={idx}><a className={classes.navLink} ref={listRef[key]} onClick={() => { listRef[key].current.scrollIntoView() }}>{key}</a></li>); //eslint-disable-line
     }
 
     return (
@@ -233,12 +309,12 @@ export default function SystemSetting(props) {
             <Row noGutters className="page-header py-4">
                 <PageTitle title="Hệ thống HappyCart" subtitle="Tổng quan" className="text-sm-left mb-3" />
             </Row>
-            <Card style={{minHeight: '400px'}}>
+            <Card style={{ minHeight: '400px' }}>
                 <Toolbar>
                     <Paper className={classes.searchBarPaper}>
                         <InputBase
                             className={classes.searchBar}
-                            placeholder="Tìm theo tên, mô tả cài đặt"
+                            placeholder="Tìm theo tên, mô tả của cài đặt"
                             inputProps={{ 'aria-label': 'tìm kiếm cài đặt' }}
                             onChange={async (e) => {
                                 const term = e.target.value;
@@ -253,33 +329,60 @@ export default function SystemSetting(props) {
                     </Paper>
                 </Toolbar>
                 <Grid container>
-                    <Grid item sm={1} lg={2} style={{display: 'block'}}>
+                    <Grid item sm={1} lg={2} style={{ display: 'block' }}>
                         <div className={classes.menuSide}>
                             <ul className={classes.listNavLink}>
-                                { renderNavSideMenu() }
+                                {renderNavSideMenu()}
                             </ul>
-                            <hr/>
-                            <Button onClick={handleClickSaveButton}>
-                                <SaveIcon className='mr-1'/> Lưu {isEditMode ? 'thay đổi' : 'cài đặt'}
+                            <hr />
+                            {/* Show when edit mode is ON */}
+                            <Button onClick={() => { setEditMode(!isEditMode) }} className={isEditMode ? '' : 'd-none'}>
+                                <KeyboardBackspaceIcon className='mr-1' /> Trở lại
                             </Button>
-                            <br/>
-                            <Button onClick={() => {setEditMode(!isEditMode)}}>
-                                <EditIcon className='mr-1'/> Thay đổi {isEditMode ? 'cài đặt' : 'mô tả'}
+                            <br className={isEditMode ? '' : 'd-none'} />
+
+                            {/* Hide when delete mode is ON */}
+                            <Button onClick={handleClickSaveButton} className={isDeleteMode ? 'd-none' : ''}>
+                                <SaveIcon className='mr-1' /> Lưu {isEditMode ? 'thay đổi' : 'cài đặt'}
                             </Button>
-                            <br/>
-                            <Button onClick={() => {setShowModal(!isEditMode)}}>
-                                <AddIcon className='mr-1'/> Thêm cài đặt mới
+                            <br className={isDeleteMode ? 'd-none' : ''} />
+
+                            {/* Hide when delete mode or edit mode (make room for above back button) is ON */}
+                            <Button onClick={() => { setEditMode(!isEditMode) }} className={isDeleteMode || isEditMode ? 'd-none' : ''}>
+                                <EditIcon className='mr-1' /> Thay đổi mô tả'
+                            </Button>
+                            <br className={isDeleteMode || isEditMode ? 'd-none' : ''} />
+
+                            {/* Hide when delete mode is ON */}
+                            <Button onClick={() => { setShowModal(!isShowModal) }} className={isDeleteMode ? 'd-none' : ''}>
+                                <AddIcon className='mr-1' /> Thêm cài đặt mới
+                            </Button>
+                            <br className={isDeleteMode ? 'd-none' : ''} />
+
+                            {/* Hide when edit mode is ON */}
+                            <Button onClick={() => { setDeleteMode(!isDeleteMode) }} className={isEditMode ? 'd-none' : ''}>
+                                {
+                                    !isDeleteMode ?
+                                        <><DeleteIcon className='mr-1' /> Xóa cài đặt</>
+                                        : <><KeyboardBackspaceIcon className='mr-1' /> Trở lại</>
+                                }
+                            </Button>
+                            <br />
+
+                            {/* Show when delete mode is ON */}
+                            <Button onClick={handleDeleteConfig} className={isDeleteMode ? '' : 'd-none'}>
+                                <DeleteIcon className='mr-1' /> Xóa { selected.length ? selected.length : '' } mục đã chọn
                             </Button>
                         </div>
                     </Grid>
                     <Grid item sm={11} lg={10} className={classes.settingItemSide}>
-                        { renderListSettingItem() }
+                        {renderContentListSettingItem()}
                     </Grid>
                 </Grid>
             </Card>
             <Modal dialogClassName={classes.modal} className={classes.modalContainer}
                 show={isShowModal}
-                onHide={() => {setShowModal(false)}}
+                onHide={() => { setShowModal(false) }}
                 aria-hidden='true'
             >
                 <Modal.Header closeButton>
@@ -296,8 +399,8 @@ export default function SystemSetting(props) {
                                 id="title"
                                 label="Tên của cài đặt"
                                 autoFocus
-                                onChange={(el) => {handleChangeValueInputModal(el.target.name, el.target.value)}}
-                                size="normal" 
+                                onChange={(el) => { handleChangeValueInputModal(el.target.name, el.target.value) }}
+                                size="normal"
                                 value={inputModal['name']}
                                 helperText='Được viết theo dạng snake_case và bằng tiếng Anh.'
                             />
@@ -311,8 +414,8 @@ export default function SystemSetting(props) {
                                 id="title"
                                 label="Tiêu đề"
                                 autoFocus
-                                onChange={(el) => {handleChangeValueInputModal(el.target.name, el.target.value)}}
-                                size="normal" 
+                                onChange={(el) => { handleChangeValueInputModal(el.target.name, el.target.value) }}
+                                size="normal"
                                 value={inputModal['title']}
                             />
                         </Grid>
@@ -324,7 +427,7 @@ export default function SystemSetting(props) {
                                 fullWidth
                                 id="description"
                                 label="Mô tả"
-                                onChange={(el) => {handleChangeValueInputModal(el.target.name, el.target.value)}}
+                                onChange={(el) => { handleChangeValueInputModal(el.target.name, el.target.value) }}
                                 size="normal"
                                 value={inputModal['description']}
                             />
@@ -337,7 +440,7 @@ export default function SystemSetting(props) {
                                 fullWidth
                                 id="value"
                                 label="Giá trị"
-                                onChange={(el) => {handleChangeValueInputModal(el.target.name, el.target.value)}}
+                                onChange={(el) => { handleChangeValueInputModal(el.target.name, el.target.value) }}
                                 size="normal"
                                 value={inputModal['value']}
                             />
@@ -350,7 +453,7 @@ export default function SystemSetting(props) {
                                 fullWidth
                                 id="affect"
                                 label="Đối tượng ảnh hưởng đến"
-                                onChange={(el) => {handleChangeValueInputModal(el.target.name, el.target.value)}}
+                                onChange={(el) => { handleChangeValueInputModal(el.target.name, el.target.value) }}
                                 size="normal"
                                 value={inputModal['affect']}
                                 helperText='Các đối tượng ngăn cách nhau bởi dấu phẩy ( , )'
@@ -364,17 +467,17 @@ export default function SystemSetting(props) {
                                 fullWidth
                                 id="category"
                                 label="Danh mục"
-                                onChange={(el) => {handleChangeValueInputModal(el.target.name, el.target.value)}}
+                                onChange={(el) => { handleChangeValueInputModal(el.target.name, el.target.value) }}
                                 size="normal"
                                 value={inputModal['category']}
                             />
                         </Grid>
                         <Grid item xs={12}>
                             <FormControlLabel
-                                control={<Switch 
+                                control={<Switch
                                     name='type'
-                                    checked={checked} 
-                                    onChange={(el) => {handleChangeValueInputModal(el.target.name, el.target.checked)}}
+                                    checked={checked}
+                                    onChange={(el) => { handleChangeValueInputModal(el.target.name, el.target.checked) }}
                                 />}
                                 label={`Kiểu dữ liệu Boolean ${checked ? '' : '(Mặc định là kiểu chữ/số)'}`}
                             />
@@ -382,7 +485,7 @@ export default function SystemSetting(props) {
                     </Grid>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button className={`${classes.updateButton} ${classes.buttonFooter}`} 
+                    <Button className={`${classes.updateButton} ${classes.buttonFooter}`}
                         onClick={handleCreateSetting}
                     >
                         Thêm cài đặt
