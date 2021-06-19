@@ -336,41 +336,51 @@ export default function SystemSetting(props) {
                             </ul>
                             <hr />
                             {/* Show when edit mode is ON */}
-                            <Button onClick={() => { setEditMode(!isEditMode) }} className={isEditMode ? '' : 'd-none'}>
+                            <Button className={isEditMode ? 'pl-0' : 'd-none'} 
+                                onClick={() => { 
+                                    setListEditedInfo({});
+                                    setEditMode(!isEditMode); 
+                                }}
+                            >
                                 <KeyboardBackspaceIcon className='mr-1' /> Trở lại
                             </Button>
                             <br className={isEditMode ? '' : 'd-none'} />
 
                             {/* Hide when delete mode is ON */}
-                            <Button onClick={handleClickSaveButton} className={isDeleteMode ? 'd-none' : ''}>
-                                <SaveIcon className='mr-1' /> Lưu {isEditMode ? 'thay đổi' : 'cài đặt'}
+                            <Button onClick={handleClickSaveButton} className={isDeleteMode ? 'd-none' : 'pl-0'} disabled={Object.keys(listEditedInfo).length ? false : true}>
+                                <SaveIcon className='mr-1' /> Lưu thay đổi
                             </Button>
                             <br className={isDeleteMode ? 'd-none' : ''} />
 
                             {/* Hide when delete mode or edit mode (make room for above back button) is ON */}
-                            <Button onClick={() => { setEditMode(!isEditMode) }} className={isDeleteMode || isEditMode ? 'd-none' : ''}>
+                            <Button className={isDeleteMode || isEditMode ? 'd-none' : 'pl-0'}
+                                onClick={() => { 
+                                    setListEditedInfo({});
+                                    setEditMode(!isEditMode); 
+                                }}
+                            >
                                 <EditIcon className='mr-1' /> Thay đổi mô tả'
                             </Button>
                             <br className={isDeleteMode || isEditMode ? 'd-none' : ''} />
 
                             {/* Hide when delete mode is ON */}
-                            <Button onClick={() => { setShowModal(!isShowModal) }} className={isDeleteMode ? 'd-none' : ''}>
-                                <AddIcon className='mr-1' /> Thêm cài đặt mới
+                            <Button onClick={() => { setShowModal(!isShowModal) }} className={isDeleteMode ? 'd-none' : 'pl-0'}>
+                                <AddIcon className='mr-1' /> Thêm cấu hình mới
                             </Button>
                             <br className={isDeleteMode ? 'd-none' : ''} />
 
                             {/* Hide when edit mode is ON */}
-                            <Button onClick={() => { setDeleteMode(!isDeleteMode) }} className={isEditMode ? 'd-none' : ''}>
+                            <Button onClick={() => { setDeleteMode(!isDeleteMode) }} className={isEditMode ? 'd-none' : 'pl-0'}>
                                 {
                                     !isDeleteMode ?
-                                        <><DeleteIcon className='mr-1' /> Xóa cài đặt</>
+                                        <><DeleteIcon className='mr-1' /> Xóa cấu hình</>
                                         : <><KeyboardBackspaceIcon className='mr-1' /> Trở lại</>
                                 }
                             </Button>
                             <br />
 
                             {/* Show when delete mode is ON */}
-                            <Button onClick={handleDeleteConfig} className={isDeleteMode ? '' : 'd-none'}>
+                            <Button onClick={handleDeleteConfig} className={isDeleteMode ? 'pl-0' : 'd-none'} disabled={selected.length ? false : true}>
                                 <DeleteIcon className='mr-1' /> Xóa { selected.length ? selected.length : '' } mục đã chọn
                             </Button>
                         </div>
@@ -386,7 +396,7 @@ export default function SystemSetting(props) {
                 aria-hidden='true'
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Thêm cài đặt mới</Modal.Title>
+                    <Modal.Title>Thêm cấu hình mới</Modal.Title>
                 </Modal.Header>
                 <Modal.Body className='pb-0'>
                     <Grid container spacing={2}>
@@ -488,7 +498,7 @@ export default function SystemSetting(props) {
                     <Button className={`${classes.updateButton} ${classes.buttonFooter}`}
                         onClick={handleCreateSetting}
                     >
-                        Thêm cài đặt
+                        Thêm cấu hình
                     </Button>
                 </Modal.Footer>
             </Modal>
