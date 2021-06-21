@@ -88,3 +88,7 @@ exports.generateSlug = (str, separator) => {
     }
     return str;
 }
+
+exports.isLetter = (c) => {
+    return RegExp(/^\p{L}/,'u').test(c);
+}

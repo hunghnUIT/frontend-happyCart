@@ -307,7 +307,7 @@ export default function SystemSetting(props) {
         <Container fluid className="main-content-container px-4">
             {/* Page Header */}
             <Row noGutters className="page-header py-4">
-                <PageTitle title="Hệ thống HappyCart" subtitle="Tổng quan" className="text-sm-left mb-3" />
+                <PageTitle title="Cấu hình hệ thống" subtitle="Quản lý" className="text-sm-left mb-3" />
             </Row>
             <Card style={{ minHeight: '400px' }}>
                 <Toolbar>
@@ -334,7 +334,7 @@ export default function SystemSetting(props) {
                             <ul className={classes.listNavLink}>
                                 {renderNavSideMenu()}
                             </ul>
-                            <hr />
+                            <hr style={{marginRight: '20px'}}/>
                             {/* Show when edit mode is ON */}
                             <Button className={isEditMode ? 'pl-0' : 'd-none'} 
                                 onClick={() => { 

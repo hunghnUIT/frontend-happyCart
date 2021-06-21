@@ -182,10 +182,8 @@ function UserManagement() {
   };
 
   const handleSearchUser = (term) => {
-    // eslint-disable-next-line
     const result = users.filter((user, idx) => {
-      if (user?.name?.includes(term) || user?.email?.includes(term))
-        return user;
+      return ((user?.name).toLowerCase()?.includes(term) || (user?.email).toLowerCase()?.includes(term))
     });
     setFilteredUsers(result);
   }
@@ -216,11 +214,18 @@ function UserManagement() {
     <Container fluid className="main-content-container px-4">
       {/* Page Header */}
       <Row noGutters className="page-header py-4">
-        <PageTitle sm="4" title="Quản lý người dùng" subtitle="Người dùng" className="text-sm-left" />
+        <PageTitle sm="4" title="Người dùng" subtitle="Quản lý" className="text-sm-left" />
       </Row>
     <div className={classes.root}>
       <Paper className={classes.paper}>
-        <EnhancedTableToolbar numSelected={selected.length} onClickDelete={handleDeleteUser} onChangeUserSearchBar={(value) => {handleSearchUser(value)}}/>
+        <EnhancedTableToolbar 
+          numSelected={selected.length} 
+          onClickDelete={handleDeleteUser} 
+          onChangeUserSearchBar={(value) => {handleSearchUser(value)}}
+          tableTitle='Danh sách người dùng'
+          unit='người dùng'
+          searchPlaceHolder='Tìm theo tên, email'
+        />
         <TableContainer>
           <Table
             className={classes.table}

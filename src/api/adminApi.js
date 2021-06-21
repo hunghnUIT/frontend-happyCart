@@ -2,6 +2,7 @@ import adminAxios from "../utils/adminAxios";
 import { 
     MY_ACCOUNT_INFO_URL, ADMIN_STATISTIC_URL,
     ADMIN_USER_URL, ADMIN_CONFIG_URL,
+    ADMIN_STOP_WORD_URL,
 } from "../settings";
 
 class adminApi {
@@ -35,6 +36,22 @@ class adminApi {
 
     deleteConfig = (configId) => {
         return adminAxios.delete(`${ADMIN_CONFIG_URL}/${configId}`)
+    }
+
+    getAllCategoriesStopWord = () => {
+        return adminAxios.get(ADMIN_STOP_WORD_URL);
+    }
+
+    getAllStopWordsOfCategory = (categoryId) => {
+        return adminAxios.get(`${ADMIN_STOP_WORD_URL}/${categoryId}/stopwords`)
+    }
+
+    addStopWordForCategory = (categoryId, word) => {
+        return adminAxios.post(`${ADMIN_STOP_WORD_URL}/${categoryId}/stopwords`, word, { customConfig: { contentType: 'text/plain' } })
+    }
+
+    deleteStopWordOfCategory = (categoryId, word) => {
+        return adminAxios.delete(`${ADMIN_STOP_WORD_URL}/${categoryId}/stopwords/${word}`)
     }
 }
 export default new adminApi();

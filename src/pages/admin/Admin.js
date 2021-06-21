@@ -4,6 +4,7 @@ import { Router, Route } from "react-router-dom"; // eslint-disable-line no-unus
 import DefaultLayout from '../../layouts/Default';
 import Dashboard from './Dashboard';
 import UserManagement from './userManagement/UserManagement';
+import StopWordManagement from './StopWordManagement';
 import SystemSetting from './systemSetting.js/SystemSetting';
 
 
@@ -24,7 +25,7 @@ const routes = [
     {
         path: "/stop-words",
         layout: DefaultLayout,
-        component: Dashboard
+        component: StopWordManagement
     },
     {
         path: "/system-settings",

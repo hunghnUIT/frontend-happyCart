@@ -19,7 +19,8 @@ const ADMIN_URL = API_V1_URL + '/admin';
 const ADMIN_USER_URL = ADMIN_URL + '/users';
 // const ADMIN_LOG_URL = ADMIN_URL + "/logs";
 const ADMIN_STATISTIC_URL = ADMIN_URL + "/statistics";
-const ADMIN_CONFIG_URL = ADMIN_URL + '/configs'
+const ADMIN_CONFIG_URL = ADMIN_URL + '/configs';
+const ADMIN_STOP_WORD_URL = BASE_URL + '/relevant/get-relevant-products/root-category';
 
 
 // const VERIFY_RESET_PASSWORD_URL = RESET_PASSWORD_URL + "/verify";
@@ -41,4 +42,5 @@ export {
     ADMIN_USER_URL,
     ADMIN_STATISTIC_URL,
     ADMIN_CONFIG_URL,
+    ADMIN_STOP_WORD_URL,
 };

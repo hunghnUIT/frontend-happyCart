@@ -8,6 +8,7 @@ import { lighten, makeStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/Delete';
 import PropTypes from 'prop-types';
 import SearchIcon from '@material-ui/icons/Search';
+import ClearIcon from '@material-ui/icons/Clear';
 import { useState } from 'react';
 
 
@@ -53,20 +54,31 @@ const EnhancedTableToolbar = (props) => {
         >
             {numSelected > 0 ? (
                 <Typography className={classes.title} color="inherit" variant="subtitle1" component="div">
-                    Đã chọn {numSelected} người dùng
+                    Đã chọn {numSelected} {props.unit}
                 </Typography>
             ) : (
                 <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
-                    Danh sách người dùng
+                    {props.tableTitle}
                 </Typography>
             )}
 
             {numSelected > 0 ? (
-                <Tooltip title="Xóa người dùng">
-                    <IconButton aria-label="delete" onClick={props.onClickDelete}>
-                        <DeleteIcon />
-                    </IconButton>
-                </Tooltip>
+                <>
+                    {
+                        props?.showDeselectAll ? 
+                        <Tooltip title={`Bỏ chọn tất cả`}>
+                            <IconButton aria-label="deselect" onClick={props.onClickDeselect}>
+                                <ClearIcon />
+                            </IconButton>
+                        </Tooltip> : null
+                    }
+                    <Tooltip title={`Xóa ${props.unit}`}>
+                        <IconButton aria-label="delete" onClick={props.onClickDelete}>
+                            <DeleteIcon />
+                        </IconButton>
+
+                    </Tooltip>
+                </>
             ) : (
                 // <Tooltip title="Filter list">
                 //     <IconButton aria-label="filter list">
@@ -76,8 +88,8 @@ const EnhancedTableToolbar = (props) => {
                 <Paper className={classes.root}>
                     <InputBase
                         className={classes.input}
-                        placeholder="Tìm theo tên, email"
-                        inputProps={{ 'aria-label': 'tìm kiếm người dùng' }}
+                        placeholder={props.searchPlaceHolder}
+                        inputProps={{ 'aria-label': `tìm kiếm ${props.unit}` }}
                         onChange={async (e) => {
                             const term = e.target.value;
                             await setSearchValue(term);
