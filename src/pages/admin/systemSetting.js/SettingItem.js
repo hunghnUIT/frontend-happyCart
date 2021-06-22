@@ -8,7 +8,12 @@ import {
 
 const useStyles = makeStyles({
     root: {
-        marginBottom: '10px',
+        padding: '20px 8px',
+        "&:hover": {
+            backgroundColor: '#f5f5f5',
+        },
+        borderRadius: '5px',
+        marginBottom: '5px',
     },
     title: {
         fontWeight: 'bold',
@@ -88,13 +93,13 @@ export default function SettingItem(props) {
             <Typography variant='subtitle1' className={classes.title}>{props.title}</Typography>
             <Typography variant='body2'>{props.description}</Typography>
             <Grid container spacing={2} style={{marginTop: '5px'}}>
-                <Grid item xs={12} lg={4}>
+                <Grid item xs={12} lg={12}>
                     {renderValueEditor(value, 'value', 'Giá trị', props.type)}
                 </Grid>
-                <Grid item xs={12} lg={4}>
+                <Grid item xs={12} lg={12}>
                     {renderValueEditor(name, 'name', 'Tên cài đặt')}
                 </Grid>
-                <Grid item xs={12} lg={4}>
+                <Grid item xs={12} lg={12}>
                     {renderValueEditor(affect, 'affect', 'Đối tượng ảnh hưởng')}
                 </Grid>
             </Grid>

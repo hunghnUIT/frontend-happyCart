@@ -22,6 +22,7 @@ import ListSettingItem from './ListSettingItem';
 import DeleteSettingItemView from './DeleteSettingItemView';
 import adminApi from '../../../api/adminApi';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { limitDisplayString } from '../../../helpers/helper';
 
 const useStyles = makeStyles({
     searchBarPaper: {
@@ -46,6 +47,7 @@ const useStyles = makeStyles({
     navLink: {
         color: 'black',
         textDecoration: 'none !important',
+        margin: '5px 0'
     },
     modalContainer: {
         // backgroundColor: '#cfcfcf',
@@ -189,7 +191,7 @@ export default function SystemSetting(props) {
                 }
             }).catch(err => {
                 if (err.response.status > 500)
-                    alert('Tạo mới cài đặt thất bại. Hãy thử lại.')
+                    alert('Tạo mới cấu hình thất bại. Hãy thử lại.')
                 else
                     alert(err.message);
             });
@@ -200,8 +202,8 @@ export default function SystemSetting(props) {
         const len = selected.length;
         if (!len)
             alert('Bạn chưa chọn mục để xóa'); 
-        else if (len && window.confirm(`Bạn sắp xóa ${len} cài đặt ra khỏi CSDL. Hãy lưu ý những dữ liệu này sẽ KHÔNG THỂ KHÔI PHỤC. Bạn muốn tiếp tục?`)) {
-            const confirmStr = `xóa ${len} cài đặt`;
+        else if (len && window.confirm(`Bạn sắp xóa ${len} cấu hình ra khỏi CSDL. Hãy lưu ý những dữ liệu này sẽ KHÔNG THỂ KHÔI PHỤC. Bạn muốn tiếp tục?`)) {
+            const confirmStr = `xóa ${len} cấu hình`;
             let confirm = window.prompt(`Hãy nhập vào ô bên dưới "${confirmStr}" để xác nhận.`)
             if (confirm === confirmStr.toLowerCase()) {
                 let succeedId = [];
@@ -218,7 +220,7 @@ export default function SystemSetting(props) {
                 }
 
                 const failedLen = failedId.length;
-                if (failedLen && window.confirm(`Xóa thất bại ${failedLen} cài đặt. Bạn có muốn thử lại?`)) {
+                if (failedLen && window.confirm(`Xóa thất bại ${failedLen} cấu hình. Bạn có muốn thử lại?`)) {
                     let countResult = 0;
                     for (const id of failedId) {
                         try {
@@ -233,10 +235,10 @@ export default function SystemSetting(props) {
                     }
 
                     if (countResult < failedLen)
-                        alert(`Không thể xóa ${failedLen - countResult} cài đặt. Hãy thử lại sau.`)
+                        alert(`Không thể xóa ${failedLen - countResult} cấu hình. Hãy thử lại sau.`)
                 }
                 if (succeedId.length)
-                    alert(`Đã xóa xong ${succeedId.length} cài đặt`);
+                    alert(`Đã xóa xong ${succeedId.length} cấu hình`);
 
                 setSelected([]);
                 doUpdateSystemSetting(updateSystemSetting + 1);
@@ -271,6 +273,12 @@ export default function SystemSetting(props) {
         })
     }, [updateSystemSetting])
 
+    // useEffect(() => {
+    //     window.onscroll = () => {
+    //         console.log(window.pageYOffset)
+    //     }
+    // }, []);
+
     const renderContentListSettingItem = () => {
         let result = [];
         let index = 0;
@@ -300,7 +308,7 @@ export default function SystemSetting(props) {
     }
 
     const renderNavSideMenu = () => {
-        return Object.keys(filteredConfigs).map((key, idx) => <li key={idx}><a className={classes.navLink} ref={listRef[key]} onClick={() => { listRef[key].current.scrollIntoView() }}>{key}</a></li>); //eslint-disable-line
+        return Object.keys(filteredConfigs).map((key, idx) => <li key={idx}><a className={classes.navLink} ref={listRef[key]} onClick={() => { listRef[key].current.scrollIntoView() }}>{limitDisplayString(key, 22)}</a></li>); //eslint-disable-line
     }
 
     return (
@@ -314,8 +322,8 @@ export default function SystemSetting(props) {
                     <Paper className={classes.searchBarPaper}>
                         <InputBase
                             className={classes.searchBar}
-                            placeholder="Tìm theo tên, mô tả của cài đặt"
-                            inputProps={{ 'aria-label': 'tìm kiếm cài đặt' }}
+                            placeholder="Tìm theo tên, mô tả của cấu hình"
+                            inputProps={{ 'aria-label': 'tìm kiếm cấu hình' }}
                             onChange={async (e) => {
                                 const term = e.target.value;
                                 await setSearchTerm(term);
@@ -407,7 +415,7 @@ export default function SystemSetting(props) {
                                 required
                                 fullWidth
                                 id="title"
-                                label="Tên của cài đặt"
+                                label="Tên của cấu hình"
                                 autoFocus
                                 onChange={(el) => { handleChangeValueInputModal(el.target.name, el.target.value) }}
                                 size="normal"

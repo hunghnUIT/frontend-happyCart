@@ -10,7 +10,7 @@ import EditSettingItem from './EditSettingItem';
 
 const useStyles = makeStyles({
     root: {
-        marginTop: '25px',
+        paddingTop: '10px',
         color: '#0070ba',
         fontWeight:'bold',
     },
@@ -60,7 +60,7 @@ export default function ListSettingItem (props) {
     return (
         <div >
             <span ref={props.refer} className={classes.anchor}></span>
-            <Typography variant='h5' className={classes.root + ' ' + (props.noMarginTop ? 'mt-0' : '')}>{props.category}</Typography>
+            <Typography variant='h5' className={classes.root + ' ' + (props.noMarginTop ? 'pt-0 mt-0' : '')}>{props.category}</Typography>
             {renderListItemSetting()}
         </div>
     )

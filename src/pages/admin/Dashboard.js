@@ -170,7 +170,7 @@ export default function Dashboard({ smallStats, ...props }) {
               variation="1"
               label='Tổng số sản phẩm crawl được'
               value={totalItem}
-              subtitle='từ cả 2 sàn'
+              subtitle='từ các sàn'
             />
           </Col>
           <Col className="col-lg mb-4" md={6} sm={6}>
@@ -179,7 +179,7 @@ export default function Dashboard({ smallStats, ...props }) {
               variation="1"
               label='Tổng danh mục sản phẩm'
               value={totalCategory}
-              subtitle='của cả 2 sàn'
+              subtitle='của các sàn'
             />
           </Col>
           <Col className="col-lg mb-4" md={4} sm={6}>

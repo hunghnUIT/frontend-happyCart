@@ -7,7 +7,12 @@ import {
 
 const useStyles = makeStyles({
     root: {
-        marginBottom: '10px',
+        padding: '20px 8px',
+        "&:hover": {
+            backgroundColor: '#f5f5f5',
+        },
+        borderRadius: '5px',
+        marginBottom: '5px',
     },
     input: {
         margin: '10px 0',
@@ -127,7 +132,7 @@ export default function SettingItem(props) {
                     {renderValueEditor(props.affect, 'affect', 'Đối tượng ảnh hưởng')}
                 </Grid>
             </Grid>
-            <hr style={{marginTop: '0.5rem'}}/>
+            {/* <hr style={{marginTop: '0.5rem'}}/> */}
         </div>
     )
 }
