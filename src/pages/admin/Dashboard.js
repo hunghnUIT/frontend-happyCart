@@ -4,7 +4,7 @@ import { Container, Row, Col } from "shards-react";
 import PageTitle from "../../components/common/PageTitle";
 import SmallStats from "../../components/common/SmallStats";
 import CrawlingTimeOverview from "../../components/dashboard/CrawlingTimeOverview";
-import UsersByDevice from "../../components/dashboard/UsersByDevice";
+import CrawledCategory from "../../components/dashboard/CrawledCategory";
 // import NewDraft from "./../components/blog/NewDraft";
 // import Discussions from "./../components/blog/Discussions";
 // import TopReferrals from "./../components/common/TopReferrals";
@@ -30,10 +30,11 @@ export default function Dashboard({ smallStats, ...props }) {
   const [totalCrawler, setTotalCrawler] = useState(0);
   const [totalUser, setTotalUser] = useState(0);
   const [totalTrackedItem, setTotalTrackedItem] = useState(0);
+  const [crawledCategoryData, setCrawledCategoryData] = useState({});
   
   useEffect(() => {
   // Small stats
-    const list = ['item', 'category', 'crawler', 'user', 'tracked-item'];
+    const list = ['item', 'category', 'crawler', 'user', 'tracked-item', 'crawled-category'];
     list.forEach(type => {
       adminApi.getStatistics({ type: type, platform: 'all' }).then(resp => {
         if (resp?.success) {
@@ -52,6 +53,9 @@ export default function Dashboard({ smallStats, ...props }) {
               break;
             case 'tracked-item':
               setTotalTrackedItem(resp.data.total);
+              break;
+            case 'crawled-category':
+              setCrawledCategoryData(resp.data);
               break;
             default:
               break;
@@ -234,7 +238,7 @@ export default function Dashboard({ smallStats, ...props }) {
   
         {/* Users by Device */}
         <Col lg="4" md="6" sm="12" className="mb-4">
-          <UsersByDevice />
+          <CrawledCategory data={crawledCategoryData} limitDisplay={5}/>
         </Col>
       </Row>
     </Container>

@@ -37,9 +37,10 @@ exports.toHumanReadableTimeFormat = function (timestamp) {
  * @param {number} timestamp in millisecond
  * @returns String of time in human readable format
  */
-module.exports.toVietnameseTimeFormat = function (timestamp) {
+exports.toVietnameseTimeFormat = function (timestamp, showSecond = false) {
     const hour = Math.floor(timestamp / 3600000) % 24;
     const min = Math.floor(timestamp / 60000) % 60;
+    const sec = Math.floor(timestamp / 1000) % 60;
 
     let result = '';
 
@@ -49,6 +50,11 @@ module.exports.toVietnameseTimeFormat = function (timestamp) {
         if (result)
             result += ' ';
         result += `${min} phút`;
+    }
+    if (sec && showSecond) {
+        if (result)
+            result += ' ';
+        result += `${sec} giây`;
     }
 
     return result;
