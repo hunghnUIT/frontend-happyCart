@@ -22,7 +22,7 @@ import ListSettingItem from './ListSettingItem';
 import DeleteSettingItemView from './DeleteSettingItemView';
 import adminApi from '../../../api/adminApi';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { limitDisplayString } from '../../../helpers/helper';
+import { generateSlug, limitDisplayString } from '../../../helpers/helper';
 
 const useStyles = makeStyles({
     searchBarPaper: {
@@ -37,6 +37,13 @@ const useStyles = makeStyles({
         padding: '8px 20px 20px 25px',
         display: 'block',
     },
+    highlightMenu: {
+        marginRight: '2px',
+        // border: '1px solid #007bff',
+    },
+    highlightMenuContent: {
+        color: '#0070ba !important',
+    },
     settingItemSide: {
         padding: '5px 20px 20px 25px',
     },
@@ -47,7 +54,8 @@ const useStyles = makeStyles({
     navLink: {
         color: 'black',
         textDecoration: 'none !important',
-        margin: '5px 0'
+        margin: '5px 0',
+        padding: '5px'
     },
     modalContainer: {
         // backgroundColor: '#cfcfcf',
@@ -76,6 +84,7 @@ export default function SystemSetting(props) {
 
     // For reference
     const [listRef, setListRef] = useState({});
+    const [listRefOffset, setListRefOffset] = useState([]);
 
     // For modal
     const [isShowModal, setShowModal] = useState(false);
@@ -269,15 +278,41 @@ export default function SystemSetting(props) {
                 setConfigs(dict);
                 setFilteredConfigs(dict);
                 setListRef(refs);
+
+                let listOffset = [];
+                for (const key in dict) {
+                    const offset = document.querySelector(`#${generateSlug(key)}`).offsetTop;
+                    listOffset.push({
+                        offset: offset,
+                        isOnScreen: false,
+                    });
+                }
+                listOffset[0].isOnScreen = true;
+                setListRefOffset(listOffset);
+
+                window.onscroll = () => {
+                    // scroll to where, trigger event to that place.
+                    const pOffset = window.pageYOffset;
+
+                    // Dumb way below, again (foreach loop is suck)
+                    let temp = [].concat(listOffset);
+                    let latestIdx = null;
+                    listOffset.forEach((el, idx) => {
+                        temp[idx].isOnScreen = false;
+                        // when on top screen, first element should be on screen
+                        // console.log(el.offset)
+                        // console.log(pOffset)
+                        if (el.offset <= pOffset + listOffset[0].offset) {
+                            latestIdx = idx;
+                        }
+                    });
+                    if (latestIdx || latestIdx === 0)
+                        temp[latestIdx].isOnScreen = true;
+                    setListRefOffset(temp);
+                }
             }
         })
     }, [updateSystemSetting])
-
-    // useEffect(() => {
-    //     window.onscroll = () => {
-    //         console.log(window.pageYOffset)
-    //     }
-    // }, []);
 
     const renderContentListSettingItem = () => {
         let result = [];
@@ -308,7 +343,13 @@ export default function SystemSetting(props) {
     }
 
     const renderNavSideMenu = () => {
-        return Object.keys(filteredConfigs).map((key, idx) => <li key={idx}><a className={classes.navLink} ref={listRef[key]} onClick={() => { listRef[key].current.scrollIntoView() }}>{limitDisplayString(key, 22)}</a></li>); //eslint-disable-line
+        if (!isDeleteMode)
+            return Object.keys(filteredConfigs).map((key, idx) => {
+                return (
+                    <li key={idx} className={(listRefOffset[idx]?.isOnScreen ? classes.highlightMenu : '')}><a className={(classes.navLink)+' '+(listRefOffset[idx]?.isOnScreen ? classes.highlightMenuContent : '')} ref={listRef[key]} onClick={() => { listRef[key].current.scrollIntoView() }}>{limitDisplayString(key, 22)}</a></li>) //eslint-disable-line
+            })
+        else
+            return null;
     }
 
     return (
@@ -342,7 +383,7 @@ export default function SystemSetting(props) {
                             <ul className={classes.listNavLink}>
                                 {renderNavSideMenu()}
                             </ul>
-                            <hr style={{marginRight: '20px'}}/>
+                            <hr style={{marginRight: '20px'}} className={!isDeleteMode ? '' : 'd-none'}/>
                             {/* Show when edit mode is ON */}
                             <Button className={isEditMode ? 'pl-0' : 'd-none'} 
                                 onClick={() => { 

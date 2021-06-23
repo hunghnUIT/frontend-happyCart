@@ -17,6 +17,7 @@ const useStyles = makeStyles({
     },
     title: {
         fontWeight: 'bold',
+        fontSize: '1.05rem',
     },
 });
 

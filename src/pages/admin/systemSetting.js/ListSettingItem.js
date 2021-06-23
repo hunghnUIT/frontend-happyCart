@@ -6,11 +6,12 @@ import {
 
 import SettingItem from './SettingItem';
 import EditSettingItem from './EditSettingItem';
+import { generateSlug } from '../../../helpers/helper';
 
 
 const useStyles = makeStyles({
     root: {
-        paddingTop: '10px',
+        padding: '10px 8px 0 8px',
         color: '#0070ba',
         fontWeight:'bold',
     },
@@ -58,7 +59,7 @@ export default function ListSettingItem (props) {
     }
 
     return (
-        <div >
+        <div id={generateSlug(props.category)}>
             <span ref={props.refer} className={classes.anchor}></span>
             <Typography variant='h5' className={classes.root + ' ' + (props.noMarginTop ? 'pt-0 mt-0' : '')}>{props.category}</Typography>
             {renderListItemSetting()}
