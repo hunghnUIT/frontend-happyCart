@@ -3,12 +3,14 @@ import {
     Toolbar, Typography, 
     Tooltip, IconButton,
     Paper, InputBase,
+    Chip,
 } from "@material-ui/core";
-import { lighten, makeStyles } from '@material-ui/core/styles';
+import { lighten, makeStyles, withStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/Delete';
 import PropTypes from 'prop-types';
 import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Clear';
+import LocalOfferIcon from '@material-ui/icons/LocalOffer';
 import { useState } from 'react';
 
 
@@ -40,6 +42,12 @@ const useToolbarStyles = makeStyles((theme) => ({
     },
 }));
 
+const StyledChip = withStyles({
+    label: {
+        padding: '0 9px',
+    },
+})(Chip);
+
 const EnhancedTableToolbar = (props) => {
     const classes = useToolbarStyles();
     const { numSelected } = props;
@@ -57,9 +65,12 @@ const EnhancedTableToolbar = (props) => {
                     Đã chọn {numSelected} {props.unit}
                 </Typography>
             ) : (
+                <>
                 <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
-                    {props.tableTitle}
+                    {props.tableTitle} 
+                    {props.showAddButton ? <StyledChip variant='outline' onClick={props.onClickAddStopWord} label='Thêm mới' className={'ml-2 '+classes.label} icon={<LocalOfferIcon/>}/> : null}
                 </Typography>
+                </>
             )}
 
             {numSelected > 0 ? (

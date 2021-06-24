@@ -5,8 +5,12 @@ import {
     TableContainer,
     TableRow, TableCell,
     TableHead, CircularProgress,
-    Fade,
+    Fade, Checkbox,
+    FormControlLabel, Button,
+    Grid, Typography,
+    TextField, 
 } from '@material-ui/core';
+import { Modal, } from 'react-bootstrap';
 import Table from 'react-bootstrap/Table';
 import ReplayIcon from '@material-ui/icons/Replay';
 import { lighten, makeStyles } from '@material-ui/core/styles';
@@ -47,6 +51,10 @@ export default function StopWordManagement() {
     const [filteredData, setFilteredData] = useState([]);
     const [listCateId, setListCateId] = useState([]); // This arr category id has exactly order with 'data' arr
     const [expandedList, setExpandedList] = useState([]);
+
+    // Modal
+    const [isShowModal, setShowModal] = useState(false);
+    const [inputModalData, setInputModalData] = useState({});
 
     const handleClick = (cateId, name) => {
         const value = `${cateId}-${name}`;
@@ -154,6 +162,74 @@ export default function StopWordManagement() {
             return ((cate?.rootName).toLowerCase()?.includes(term))
         });
         setFilteredData(result);
+    }
+
+    const handleSelectCheckbox = (el) => {
+        const id = el.target.name;
+        const isChecked = el.target.checked;
+
+        // I think below is a dumb way but use object is easier to handle
+        const temp = {...inputModalData.selectedCate};
+        if (isChecked)
+            temp[id] = true;
+        else
+            delete temp[id];
+
+        setInputModalData({...inputModalData, selectedCate: {...temp}})
+    }
+
+    const handleChangeValueInputModal = (el) => {
+        let value = el.target.value;
+        value = (value.split(',')).map(ele => ele.toLowerCase().replace(/ /g, '_'));
+        setInputModalData({
+            ...inputModalData,
+            stopWords: value,
+        })
+    }
+
+    const handleClickAddStopWord = async () => {
+        if (!inputModalData?.selectedCate || !Object.keys(inputModalData.selectedCate).length)
+            return alert('Hãy chọn ít nhất một danh mục');
+        if (!inputModalData?.stopWords?.length || !inputModalData?.stopWords?.[0])
+            return alert('Mục "Các từ khóa" không được bỏ trống hoặc có ký tự trống')
+
+        let failed = [];
+        let count = 0;
+        let cateNeedUpdate = new Set();
+        for (const cateId in inputModalData.selectedCate) {
+            for (const word of inputModalData.stopWords) {
+                if (word) {
+                    await adminApi.addStopWordForCategory(cateId, word).catch(err => {
+                        console.log(err.response.message);
+                        failed.push();
+                    });
+
+                    count += 1;
+
+                    if (expandedList[listCateId.indexOf(Number(cateId))])
+                        cateNeedUpdate.add(cateId);
+                }
+            }
+        }
+        let msg = `Thêm thành công ${count} từ khóa.`;
+        if (failed?.length)
+            msg += ` Thêm thất bại ${failed.length} từ khóa`;
+
+        alert(msg);
+
+        for (const id of cateNeedUpdate) {
+            getStopWordOfCate(Number(id));
+        }
+
+        if (count) {
+            setInputModalData({});
+            setShowModal(false);
+        }
+    };
+
+    const handleHitEnter = (e) => {
+        if (e.key === 'Enter' || e.code === "NumpadEnter") 
+            handleClickAddStopWord();
     }
 
     useEffect(() => {
@@ -286,6 +362,25 @@ export default function StopWordManagement() {
         })
     }
 
+    const renderSelectModal = () => {
+        return data.map(el => {
+            return (
+                <Grid item xs={12} sm={6}>
+                    <FormControlLabel
+                        control={<Checkbox
+                            name={`${el.id}`}
+                            checked={inputModalData?.selectedCate?.hasOwnProperty(el.id) || false}
+                            color="primary"
+                            inputProps={{ 'aria-label': 'secondary checkbox' }}
+                            />}
+                        onChange={(el) => {handleSelectCheckbox(el)}}
+                        label={capitalizeFirstLetter(el.rootName)}
+                    />
+                </Grid>
+            )
+        })
+    }
+
     return (
         <Container fluid className="main-content-container px-4">
             {/* Page Header */}
@@ -304,6 +399,8 @@ export default function StopWordManagement() {
                     unit='từ khóa'
                     searchPlaceHolder='Tìm theo tên danh mục'
                     showDeselectAll={true}
+                    showAddButton={true}
+                    onClickAddStopWord={() => {setShowModal(true)}}
                 />
                 <TableContainer>
                     <Table bordered hover={false}
@@ -325,6 +422,47 @@ export default function StopWordManagement() {
                     </Table>
                 </TableContainer>
             </Paper>
+            <Modal 
+            // dialogClassName={classes.modal} className={classes.modalContainer}
+            show={isShowModal}
+            onHide={() => { 
+                setShowModal(false);
+                setInputModalData({});
+            }}
+            aria-hidden='true'
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Thêm từ khóa mới</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className='pb-0 pt-0'>
+                    <Typography variant='subtitle1'
+                        className='pt-2'
+                    >
+                        Chọn danh mục để thêm từ khóa
+                    </Typography>
+                    <Grid container>
+                        {renderSelectModal()}
+                    </Grid>
+                    <TextField
+                        name="stop-word"
+                        variant="outlined"
+                        required
+                        fullWidth
+                        id="affect"
+                        label="Các từ khóa"
+                        onChange={(el) => { handleChangeValueInputModal(el) }}
+                        size="normal"
+                        value={inputModalData['stopWords']}
+                        helperText='Các từ khóa ngăn cách nhau bởi dấu phẩy ( , ), dấu cách (khoảng trắng) được thay bằng dấu gạch dưới ( _ ).'
+                        onKeyDown={handleHitEnter}
+                    />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={handleClickAddStopWord}>
+                        Thêm từ khóa
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     )
 }
