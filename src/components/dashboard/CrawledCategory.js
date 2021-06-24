@@ -9,9 +9,16 @@ import {
   Table, TableContainer,
   TableCell, TableHead,
   TableBody, TableRow,
+  Tooltip, withStyles,
 } from '@material-ui/core';
 import { Modal, } from 'react-bootstrap';
 import { formatNumber, toVietnameseTimeFormat } from "../../helpers/helper";
+
+const CustomTooltip = withStyles({
+  tooltip: {
+    margin: '0',
+  }
+})(Tooltip);
 
 class CrawledCategory extends React.Component {
   constructor(props) {
@@ -32,8 +39,12 @@ class CrawledCategory extends React.Component {
         if (i < this.props.limitDisplay) {
           result.push(
             <TableRow>
-                <TableCell>{el.data.categoryName}</TableCell>
-                <TableCell align='center'>{el.data.count}</TableCell>
+                <CustomTooltip placement='left' title='Tên danh mục' arrow>
+                  <TableCell>{el.data.categoryName}</TableCell>
+                </CustomTooltip>
+                <CustomTooltip placement='left' title='Tổng sản phẩm crawl được' arrow>
+                  <TableCell align='center'>{formatNumber(el.data.count)}</TableCell>
+                </CustomTooltip>
               </TableRow>
             )
           i += 1;
@@ -76,10 +87,14 @@ class CrawledCategory extends React.Component {
                   aria-labelledby="tableTitle"
                   aria-label="enhanced table"
               >
-                  <TableHead>
+                  <colgroup>
+                      <col style={{ width: '75%' }} />
+                      <col style={{ width: '25%' }} />
+                  </colgroup>
+                  {/* <TableHead>
                       <TableCell scope="row">Tên danh mục</TableCell>
                       <TableCell>Số sản phẩm</TableCell>
-                  </TableHead>
+                  </TableHead> */}
                   <TableBody>
                     {this.renderData()}
                   </TableBody>
@@ -116,7 +131,7 @@ class CrawledCategory extends React.Component {
           aria-hidden='true'
         >
             <Modal.Header closeButton>
-                <Modal.Title>Thông tin chi tiết các danh mục vừa crawl được</Modal.Title>
+                <Modal.Title>Thông tin chi tiết các danh mục vừa crawl</Modal.Title>
             </Modal.Header>
             <Modal.Body className='pb-0 pt-0'>
               <TableContainer>
@@ -129,7 +144,7 @@ class CrawledCategory extends React.Component {
                         <TableCell scope="row">Tên danh mục</TableCell>
                         <TableCell align='center'>Sàn TMĐT</TableCell>
                         <TableCell align='center'>Số sản phẩm crawl được</TableCell>
-                        <TableCell align='center'>Thời gian thực thi</TableCell>
+                        <TableCell align='center'>Thời gian crawl</TableCell>
                     </TableHead>
                     <TableBody>
                       {this.renderModalData()}
@@ -155,7 +170,7 @@ CrawledCategory.propTypes = {
 };
 
 CrawledCategory.defaultProps = {
-  title: "Các danh mục vừa crawl được",
+  title: "Các danh mục vừa crawl",
   data: [],
 };
 

@@ -10,7 +10,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import PropTypes from 'prop-types';
 import SearchIcon from '@material-ui/icons/Search';
 import ClearIcon from '@material-ui/icons/Clear';
-import LocalOfferIcon from '@material-ui/icons/LocalOffer';
+import AddIcon from '@material-ui/icons/Add';
 import { useState } from 'react';
 
 
@@ -68,7 +68,7 @@ const EnhancedTableToolbar = (props) => {
                 <>
                 <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
                     {props.tableTitle} 
-                    {props.showAddButton ? <StyledChip variant='outline' onClick={props.onClickAddStopWord} label='Thêm mới' className={'ml-2 '+classes.label} icon={<LocalOfferIcon/>}/> : null}
+                    {props.showAddButton ? <StyledChip variant='outline' onClick={props.onClickAddStopWord} label='Thêm mới' className={'ml-2 '+classes.label} icon={<AddIcon/>}/> : null}
                 </Typography>
                 </>
             )}
