@@ -12,7 +12,7 @@ import {
   Tooltip, withStyles,
 } from '@material-ui/core';
 import { Modal, } from 'react-bootstrap';
-import { formatNumber, toVietnameseTimeFormat } from "../../helpers/helper";
+import { formatNumber, toVietnameseTimeFormat, limitDisplayString } from "../../helpers/helper";
 
 const CustomTooltip = withStyles({
   tooltip: {
@@ -40,7 +40,7 @@ class CrawledCategory extends React.Component {
           result.push(
             <TableRow>
                 <CustomTooltip placement='left' title='Tên danh mục' arrow>
-                  <TableCell>{el.data.categoryName}</TableCell>
+                  <TableCell>{limitDisplayString(el.data.categoryName, 26)}</TableCell>
                 </CustomTooltip>
                 <CustomTooltip placement='left' title='Tổng sản phẩm crawl được' arrow>
                   <TableCell align='center'>{formatNumber(el.data.count)}</TableCell>

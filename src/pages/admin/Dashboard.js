@@ -238,7 +238,7 @@ export default function Dashboard({ smallStats, ...props }) {
   
         {/* Users by Device */}
         <Col lg="4" md="6" sm="12" className="mb-4">
-          <CrawledCategory data={crawledCategoryData} limitDisplay={6}/>
+          <CrawledCategory data={crawledCategoryData} limitDisplay={7}/>
         </Col>
       </Row>
     </Container>
