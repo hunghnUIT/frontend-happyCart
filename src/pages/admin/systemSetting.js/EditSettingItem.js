@@ -23,6 +23,7 @@ export default function SettingItem(props) {
     const classes = useStyles();
 
     const [category, setCategory] = useState('');
+    const [subCategory, setSubCategory] = useState('');
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
 
@@ -38,6 +39,9 @@ export default function SettingItem(props) {
         else if (type === 'category') {
             setCategory(newValue);
         }
+        else if (type === 'subCategory') {
+            setSubCategory(newValue);
+        }
         props.onInfoChange(props.id, { [type]: newValue });
     }
 
@@ -45,7 +49,8 @@ export default function SettingItem(props) {
         setTitle(props.title);
         setDescription(props.description);
         setCategory(props.category);
-    }, []); //eslint-disable-line
+        setSubCategory(props.subCategory);
+    }, [props.title, props.description, props.category, props.subCategory]);
 
     const renderValueEditor = (value, name, label, type) => {
         if (type === 'boolean')
@@ -94,6 +99,19 @@ export default function SettingItem(props) {
                 }}
                 onChange={(el) => { handleOnInfoChange(el) }}
                 label='Danh mục'
+            />
+            <TextField
+                name='subCategory'
+                className={classes.input}
+                value={subCategory} variant='outlined'
+                style={{ width: '100%' }}
+                inputProps={{
+                    style: {
+                        padding: 10
+                    }
+                }}
+                onChange={(el) => { handleOnInfoChange(el) }}
+                label='Danh mục con'
             />
             <TextField
                 name='title'

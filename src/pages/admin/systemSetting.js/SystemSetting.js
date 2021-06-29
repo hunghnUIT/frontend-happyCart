@@ -5,17 +5,20 @@ import {
     InputBase, IconButton,
     Button, Switch,
     TextField, FormControlLabel,
-
+    Tooltip,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import SaveIcon from '@material-ui/icons/Save';
 import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
-import { makeStyles } from '@material-ui/styles';
+import { makeStyles, withStyles } from '@material-ui/styles';
 import { Row, Container } from 'shards-react';
 import { Modal, } from 'react-bootstrap';
+import { TreeItem, TreeView } from '@material-ui/lab';
 
 import PageTitle from '../../../components/common/PageTitle';
 import ListSettingItem from './ListSettingItem';
@@ -35,10 +38,11 @@ const useStyles = makeStyles({
     menuSide: {
         position: "fixed",
         padding: '8px 20px 20px 25px',
-        display: 'block',
+        // display: 'block',
     },
     highlightMenu: {
         marginRight: '2px',
+        color: '#0070ba !important',
         // border: '1px solid #007bff',
     },
     highlightMenuContent: {
@@ -62,6 +66,12 @@ const useStyles = makeStyles({
     }
 })
 
+// eslint-disable-next-line
+const CustomTooltip = withStyles({
+    tooltip: {
+        margin: '0',
+    }
+})(Tooltip);
 
 export default function SystemSetting(props) {
     const classes = useStyles();
@@ -84,7 +94,11 @@ export default function SystemSetting(props) {
 
     // For reference
     const [listRef, setListRef] = useState({});
-    const [listRefOffset, setListRefOffset] = useState([]);
+    // const [listRefOffset, setListRefOffset] = useState([]);
+    const [categoryTree, setCategoryTree] = useState({});
+
+    // For menu nav side
+    const [expandedList, setExpandedList] = useState(['0']);
 
     // For modal
     const [isShowModal, setShowModal] = useState(false);
@@ -143,29 +157,39 @@ export default function SystemSetting(props) {
             doUpdateSystemSetting(updateSystemSetting + 1);
     }
 
-    const handleSearchConfig = (term) => {
+    const handleSearchConfig = (term, data = {}) => {
+        let dataToFilter = {};
+        if (Object.keys(data).length)
+            dataToFilter = data;
+        else
+            dataToFilter = configs;
         if (term) {
+            term = term.toLowerCase();
             let result = {}
-            for (const key in configs) {
-                // eslint-disable-next-line
-                const temp = configs[key].filter((config, idx) => {
-                    // const title = (config?.title || '').toLowerCase();
-                    // const description = (config?.description || '').toLowerCase();
-                    if ((config?.title.toLowerCase())?.includes(term) || (config?.description.toLowerCase()).includes(term))
-                        return config;
-                });
-                result[key] = temp;
+            for (const key in dataToFilter) {
+                result[key] = {};
+                for (const subCate in dataToFilter[key]) {
+                    const temp = dataToFilter[key][subCate].filter((config, idx) => {
+                        return ((config?.title.toLowerCase())?.includes(term) || (config?.description.toLowerCase()).includes(term));
+                    });
+                    result[key][subCate] = temp;
+                }
             }
 
             for (const key in result) {
-                if (!result[key].length)
+                for (const subCate in result[key]) {
+                    if (!result[key][subCate]?.length) {
+                        delete result[key][subCate];
+                    }
+                }
+                if (!Object.keys(result[key]).length)
                     delete result[key];
             }
 
             setFilteredConfigs(result);
         }
         else
-            setFilteredConfigs(configs);
+            setFilteredConfigs(dataToFilter);
     }
 
     const handleChangeValueInputModal = (key, value) => {
@@ -175,8 +199,11 @@ export default function SystemSetting(props) {
                 value = value ? 'boolean' : 'text';
                 break;
             case 'affect':
-                value = (value.split(',')).map(el => el.toLowerCase().trim());
+                value = (value.split(',')).map(el => el.replace(/\s/g, '_'));
                 break;
+            case 'name':
+                value = value.replace(/\s/g, '_');
+                break; 
             default:
                 break;
         }
@@ -260,6 +287,13 @@ export default function SystemSetting(props) {
         }
     }
 
+    const handleClickShowTreeItem = (nodeId) => {
+        // TODO
+        // FIXME Do immediately
+        // FIXME Also fix scroll
+        // setExpandedList([...expandedList, idx.toString()])
+    }
+
     useEffect(() => {
         adminApi.getConfigs().then(resp => {
             if (resp.success) {
@@ -275,9 +309,41 @@ export default function SystemSetting(props) {
                     }
                 }
 
+                let temp = {...dict};
+                for (const key in dict) {
+                    dict[key] = {};
+                }
+                for (const key in temp) {
+                    for (const item of temp[key]) {
+                        if (!dict[key]?.[item.subCategory]) {
+                            dict[key][item.subCategory] = [item];
+                        }
+                        else {
+                            dict[key][item.subCategory].push(item);
+                        }
+                    }
+                }
+
                 setConfigs(dict);
                 setFilteredConfigs(dict);
+
+                // state "refs" is holding refs of category, now create refs for subCate
+                let categoryTree = {};
+                // Keys of "refs" is the same to keys of "dict"
+                for (const key in dict) {
+                    const subCates = Object.keys(dict[key]);
+                    for (const subCate of subCates) {
+                        if (!categoryTree[key]) {
+                            categoryTree[key] = [subCate];
+                        }
+                        else
+                            categoryTree[key].push(subCate);
+
+                        refs[`${key}:${subCate}`]=createRef();
+                    }
+                }
                 setListRef(refs);
+                setCategoryTree(categoryTree);
 
                 let listOffset = [];
                 for (const key in dict) {
@@ -288,7 +354,7 @@ export default function SystemSetting(props) {
                     });
                 }
                 listOffset[0].isOnScreen = true;
-                setListRefOffset(listOffset);
+                // setListRefOffset(listOffset);
 
                 window.onscroll = () => {
                     // scroll to where, trigger event to that place.
@@ -299,30 +365,70 @@ export default function SystemSetting(props) {
                     let latestIdx = null;
                     listOffset.forEach((el, idx) => {
                         temp[idx].isOnScreen = false;
-                        // when on top screen, first element should be on screen
-                        // console.log(el.offset)
-                        // console.log(pOffset)
+
                         if (el.offset <= pOffset + listOffset[0].offset) {
                             latestIdx = idx;
                         }
                     });
                     if (latestIdx || latestIdx === 0)
                         temp[latestIdx].isOnScreen = true;
-                    setListRefOffset(temp);
+                    // setListRefOffset(temp);
+                    setExpandedList([latestIdx.toString()]);
                 }
+
+                // Dumb way again
+                if (searchTerm)
+                    handleSearchConfig(searchTerm, dict);
             }
         })
-    }, [updateSystemSetting])
+    }, [updateSystemSetting]) // eslint-disable-line
 
-    const renderContentListSettingItem = () => {
+    useEffect(() => {
+        let categoryTree = {};
+        for (const key in filteredConfigs) {
+            const subCates = Object.keys(filteredConfigs[key]);
+            for (const subCate of subCates) {
+                if (!categoryTree[key]) {
+                    categoryTree[key] = [subCate];
+                }
+                else
+                    categoryTree[key].push(subCate);
+            }
+        }
+        setCategoryTree(categoryTree);
+    }, [filteredConfigs])
+
+    const renderListSettingItem = () => {
+        let result = [];
+        let idx = 0;
+        for (const cate in filteredConfigs) {
+            result.push(
+                <ListSettingItem
+                    id={cate}
+                    key={idx*2} isSubCate={false}
+                    category={cate} refer={listRef[cate]}
+                    noMarginTop={idx === 0 ? true : false}
+                >
+                    {renderContentListSettingItem(cate)}
+                </ListSettingItem>
+            )
+            idx += 1; 
+        }
+        return result;
+    }
+
+    const renderContentListSettingItem = (cate) => {
         let result = [];
         let index = 0;
+
         if (!isDeleteMode) {
-            for (const key in filteredConfigs) {
+            for (const key in filteredConfigs[cate]) {
+                const id = `${cate}:${key}`;
                 result.push(<ListSettingItem
-                    key={index} isEditMode={isEditMode}
-                    category={key} refer={listRef[key]}
-                    listSettingItem={filteredConfigs[key]} noMarginTop={index === 0 ? true : false}
+                    id={id}
+                    key={index} isSubCate={true} isEditMode={isEditMode}
+                    subCategory={key} refer={listRef[id]}
+                    listSettingItem={filteredConfigs[cate][key]} noMarginTop={index === 0 ? true : false}
                     onInfoChange={(id, infoObj) => { handleEditInfo(id, infoObj) }}
                 />)
 
@@ -343,11 +449,26 @@ export default function SystemSetting(props) {
     }
 
     const renderNavSideMenu = () => {
-        if (!isDeleteMode)
-            return Object.keys(filteredConfigs).map((key, idx) => {
+        if (!isDeleteMode && Object.keys(categoryTree)?.length) {
+            return Object.keys(categoryTree).map((key, idx) => {
                 return (
-                    <li key={idx} className={(listRefOffset[idx]?.isOnScreen ? classes.highlightMenu : '')}><a className={(classes.navLink)+' '+(listRefOffset[idx]?.isOnScreen ? classes.highlightMenuContent : '')} ref={listRef[key]} onClick={() => { listRef[key].current.scrollIntoView() }}>{limitDisplayString(key, 22)}</a></li>) //eslint-disable-line
+                    <TreeItem
+                        key={idx} nodeId={idx.toString()} label={limitDisplayString(key)}
+                        onLabelClick={() => { listRef[key].current.scrollIntoView() }}
+                        onIconClick={() => {handleClickShowTreeItem(idx.toString())}}
+                    >
+                        {
+                            categoryTree[key].length ?
+                            categoryTree[key].map((sub, i) => (
+                                <TreeItem onClick={() => { listRef[`${key}:${sub}`].current.scrollIntoView() }}
+                                    key={i} nodeId={`${key}_${i}`} label={sub} disabled={true}>
+                                </TreeItem>
+                            )) : null
+                        }
+                    </TreeItem>
+                )
             })
+        }
         else
             return null;
     }
@@ -378,11 +499,17 @@ export default function SystemSetting(props) {
                     </Paper>
                 </Toolbar>
                 <Grid container>
-                    <Grid item sm={1} lg={2} style={{ display: 'block' }}>
+                    <Grid item sm={3} lg={2} style={{ display: 'block' }}>
                         <div className={classes.menuSide}>
-                            <ul className={classes.listNavLink}>
+                            <TreeView
+                                className={classes.root}
+                                defaultCollapseIcon={<ExpandMoreIcon />}
+                                expanded={expandedList}
+                                defaultExpandIcon={<ChevronRightIcon />}
+                                disableSelection={true}
+                            >
                                 {renderNavSideMenu()}
-                            </ul>
+                            </TreeView>
                             <hr style={{marginRight: '20px'}} className={!isDeleteMode ? '' : 'd-none'}/>
                             {/* Show when edit mode is ON */}
                             <Button className={isEditMode ? 'pl-0' : 'd-none'} 
@@ -434,8 +561,8 @@ export default function SystemSetting(props) {
                             </Button>
                         </div>
                     </Grid>
-                    <Grid item sm={11} lg={10} className={classes.settingItemSide}>
-                        {renderContentListSettingItem()}
+                    <Grid item sm={9} lg={10} className={classes.settingItemSide}>
+                        {renderListSettingItem()}
                     </Grid>
                 </Grid>
             </Card>

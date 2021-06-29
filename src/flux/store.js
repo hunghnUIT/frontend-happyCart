@@ -38,7 +38,7 @@ let _store = {
       to: "/admin/stop-words",
     },
     {
-      title: "Cài đặt hệ thống",
+      title: "Cấu hình hệ thống",
       htmlBefore: '<i class="material-icons">settings</i>',
       to: "/admin/system-settings",
     },

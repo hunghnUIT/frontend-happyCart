@@ -36,11 +36,11 @@ export default function SettingItem(props) {
                 setValue(newValue);
                 break;
             case 'name':
-                setName(newValue);
+                setName(newValue.replace(/\s/g, '_'));
                 break;
             case 'affect':
                 newValue = newValue.split(',');
-                newValue = newValue.map(el => el.toLowerCase().trim());
+                newValue = newValue.map(el => el.replace(/\s/g, '_'));
                 setAffect(newValue);
                 break;
             default:
@@ -54,7 +54,7 @@ export default function SettingItem(props) {
         setValue(props.value);
         setName(props.name);
         setAffect(props.affect);
-    }, []); //eslint-disable-line
+    }, [props.value, props.name, props.affect]);
 
     const renderValueEditor = (value, name, label, type) => {
         if (type === 'boolean')
