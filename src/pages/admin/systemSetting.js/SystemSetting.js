@@ -5,7 +5,6 @@ import {
     InputBase, IconButton,
     Button, Switch,
     TextField, FormControlLabel,
-    Tooltip,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import SaveIcon from '@material-ui/icons/Save';
@@ -15,7 +14,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
-import { makeStyles, withStyles } from '@material-ui/styles';
+import { makeStyles } from '@material-ui/styles';
 import { Row, Container } from 'shards-react';
 import { Modal, } from 'react-bootstrap';
 import { TreeItem, TreeView } from '@material-ui/lab';
@@ -49,7 +48,7 @@ const useStyles = makeStyles({
         color: '#0070ba !important',
     },
     settingItemSide: {
-        padding: '5px 20px 20px 25px',
+        padding: '5px 20px 20px 3rem',
     },
     listNavLink: {
         listStyleType: 'none',
@@ -65,13 +64,6 @@ const useStyles = makeStyles({
         // backgroundColor: '#cfcfcf',
     }
 })
-
-// eslint-disable-next-line
-const CustomTooltip = withStyles({
-    tooltip: {
-        margin: '0',
-    }
-})(Tooltip);
 
 export default function SystemSetting(props) {
     const classes = useStyles();
@@ -94,7 +86,7 @@ export default function SystemSetting(props) {
 
     // For reference
     const [listRef, setListRef] = useState({});
-    // const [listRefOffset, setListRefOffset] = useState([]);
+    const [listRefOffset, setListRefOffset] = useState([]);
     const [categoryTree, setCategoryTree] = useState({});
 
     // For menu nav side
@@ -202,7 +194,7 @@ export default function SystemSetting(props) {
                 value = (value.split(',')).map(el => el.replace(/\s/g, '_'));
                 break;
             case 'name':
-                value = value.replace(/\s/g, '_');
+                value = value.replace(/\s/g, '_').toLowerCase();
                 break; 
             default:
                 break;
@@ -288,10 +280,23 @@ export default function SystemSetting(props) {
     }
 
     const handleClickShowTreeItem = (nodeId) => {
-        // TODO
-        // FIXME Do immediately
-        // FIXME Also fix scroll
-        // setExpandedList([...expandedList, idx.toString()])
+        const selectedIndex = expandedList.indexOf(nodeId);
+        let newSelected = [];
+
+        if (selectedIndex === -1) {
+            newSelected = newSelected.concat(expandedList, nodeId);
+        } else if (selectedIndex === 0) {
+            newSelected = newSelected.concat(expandedList.slice(1));
+        } else if (selectedIndex === expandedList.length - 1) {
+            newSelected = newSelected.concat(expandedList.slice(0, -1));
+        } else if (selectedIndex > 0) {
+            newSelected = newSelected.concat(
+                expandedList.slice(0, selectedIndex),
+                expandedList.slice(selectedIndex + 1),
+            );
+        }
+
+        setExpandedList(newSelected);
     }
 
     useEffect(() => {
@@ -346,34 +351,58 @@ export default function SystemSetting(props) {
                 setCategoryTree(categoryTree);
 
                 let listOffset = [];
-                for (const key in dict) {
+                let listOffsetSubCate = [];
+                for (const key in categoryTree) {
                     const offset = document.querySelector(`#${generateSlug(key)}`).offsetTop;
                     listOffset.push({
                         offset: offset,
                         isOnScreen: false,
                     });
+
+                    for (const sub of categoryTree[key]) {
+                        const subOffset = document.querySelector(`#${generateSlug(`${key}:${sub}`)}`).offsetTop;
+                        listOffsetSubCate.push({
+                            offset: subOffset,
+                            isOnScreen: false,
+                        })
+                    }
                 }
                 listOffset[0].isOnScreen = true;
-                // setListRefOffset(listOffset);
+                listOffsetSubCate[0].isOnScreen = true;
+                setListRefOffset(listOffsetSubCate);
 
                 window.onscroll = () => {
                     // scroll to where, trigger event to that place.
                     const pOffset = window.pageYOffset;
 
-                    // Dumb way below, again (foreach loop is suck)
-                    let temp = [].concat(listOffset);
+                    // Dumb way below, again and twice. :(( (foreach loop is suck)
+                    let tempCate = [].concat(listOffset);
                     let latestIdx = null;
                     listOffset.forEach((el, idx) => {
-                        temp[idx].isOnScreen = false;
+                        tempCate[idx].isOnScreen = false;
 
-                        if (el.offset <= pOffset + listOffset[0].offset) {
+                        if (el.offset <= pOffset + listOffset[0].offset + 10) { // 10 is optional, remove to know how different
                             latestIdx = idx;
                         }
                     });
                     if (latestIdx || latestIdx === 0)
-                        temp[latestIdx].isOnScreen = true;
-                    // setListRefOffset(temp);
+                        tempCate[latestIdx].isOnScreen = true;
                     setExpandedList([latestIdx.toString()]);
+
+                    let tempSubCate = [].concat(listOffsetSubCate)
+                    let subLatestIdx = null;
+                    const difference = listOffsetSubCate[0].offset - listOffset[0].offset;
+                    listOffsetSubCate.forEach((el, idx) => {
+                        tempSubCate[idx].isOnScreen = false;
+
+                        // + difference means: When cate is show, first subCate of that cate will be selected
+                        if (el.offset <= pOffset + listOffsetSubCate[0].offset + difference) {
+                            subLatestIdx = idx;
+                        }
+                    });
+                    if (subLatestIdx || subLatestIdx === 0)
+                        tempSubCate[subLatestIdx].isOnScreen = true;
+                    setListRefOffset(tempSubCate);
                 }
 
                 // Dumb way again
@@ -449,24 +478,30 @@ export default function SystemSetting(props) {
     }
 
     const renderNavSideMenu = () => {
+        let lastIndex= 0;
         if (!isDeleteMode && Object.keys(categoryTree)?.length) {
             return Object.keys(categoryTree).map((key, idx) => {
-                return (
+                const subCateLength = categoryTree[key]?.length || 0;
+                let treeItem = (
                     <TreeItem
                         key={idx} nodeId={idx.toString()} label={limitDisplayString(key)}
                         onLabelClick={() => { listRef[key].current.scrollIntoView() }}
                         onIconClick={() => {handleClickShowTreeItem(idx.toString())}}
                     >
                         {
-                            categoryTree[key].length ?
+                            subCateLength ?
                             categoryTree[key].map((sub, i) => (
-                                <TreeItem onClick={() => { listRef[`${key}:${sub}`].current.scrollIntoView() }}
-                                    key={i} nodeId={`${key}_${i}`} label={sub} disabled={true}>
+                                // Below is a little trick to get index of array offset
+                                <TreeItem className={listRefOffset[lastIndex+i]?.isOnScreen ? classes.highlightMenuContent : ''}
+                                    onClick={() => { listRef[`${key}:${sub}`].current.scrollIntoView() }}
+                                    key={i} nodeId={`${key}_${i}`} label={limitDisplayString(sub, 15)} disabled={true}>
                                 </TreeItem>
                             )) : null
                         }
                     </TreeItem>
                 )
+                lastIndex += subCateLength;
+                return treeItem;
             })
         }
         else
@@ -656,6 +691,19 @@ export default function SystemSetting(props) {
                                 onChange={(el) => { handleChangeValueInputModal(el.target.name, el.target.value) }}
                                 size="normal"
                                 value={inputModal['category']}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                name="subCategory"
+                                variant="outlined"
+                                required
+                                fullWidth
+                                id="subCategory"
+                                label="Danh mục con"
+                                onChange={(el) => { handleChangeValueInputModal(el.target.name, el.target.value) }}
+                                size="normal"
+                                value={inputModal['subCategory']}
                             />
                         </Grid>
                         <Grid item xs={12}>

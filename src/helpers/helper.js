@@ -1,3 +1,9 @@
+/**
+ * Limit a string if string length is grater then `limitLength`
+ * @param {String} str String need to be limit
+ * @param {Number} limitLength Optional. Default is 19 character
+ * @returns String with the tail "..." if string is limited
+ */
 exports.limitDisplayString = (str = "", limitLength = 19) => {
     if (str.length <= limitLength)
         return str;
