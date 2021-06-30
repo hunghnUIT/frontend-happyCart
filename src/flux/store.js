@@ -12,6 +12,11 @@ let _store = {
       htmlBefore: '<i class="material-icons">dashboard</i>',
       htmlAfter: ""
     },
+    {
+      title: "Quản lý hiệu năng",
+      htmlBefore: '<i class="material-icons">speed</i>',
+      to: "/admin/performance",
+    },
     // {
     //   title: "Blog Posts",
     //   htmlBefore: '<i class="material-icons">vertical_split</i>',

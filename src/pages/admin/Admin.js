@@ -28,6 +28,11 @@ const routes = [
         component: StopWordManagement
     },
     {
+        path: "/performance",
+        layout: DefaultLayout,
+        component: StopWordManagement
+    },
+    {
         path: "/system-settings",
         layout: DefaultLayout,
         component: SystemSetting
