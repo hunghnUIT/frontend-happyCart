@@ -70,6 +70,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const headCells = [
+  { id: 'name', alignCenter: false, disablePadding: true, label: 'Tên người dùng' },
+  { id: 'email', alignCenter: false, disablePadding: false, label: 'Địa chỉ Email' },
+  { id: 'createdAt', alignCenter: true, disablePadding: false, label: 'Ngày tham gia' },
+  { id: 'isVerified', alignCenter: true, disablePadding: false, label: 'Đã xác thực Email' },
+  { id: 'note', alignCenter: true, disablePadding: false, label: 'Ghi chú' },
+];
+
 function UserManagement() {
   const classes = useStyles();
   const [order, setOrder] = useState('asc');
@@ -240,6 +248,7 @@ function UserManagement() {
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
               rowCount={filteredUsers.length}
+              headCells={headCells}
             />
             <TableBody>
               {stableSort(filteredUsers, getComparator(order, orderBy))

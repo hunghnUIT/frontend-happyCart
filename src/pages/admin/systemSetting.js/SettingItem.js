@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
     TextField, Typography,
-    makeStyles, Select,
-    Grid,
+    makeStyles, FormControlLabel,
+    Grid, Switch,
 } from '@material-ui/core';
+
+import { parseBoolean } from '../../../helpers/helper'
 
 
 const useStyles = makeStyles({
@@ -30,7 +32,7 @@ export default function SettingItem(props) {
 
     const handleOnValueChange = (el) => {
         const targetName = el.target.name;
-        let newValue = el.target.value;
+        let newValue = el.target.value || el.target.checked;
         switch (targetName) {
             case 'value':
                 setValue(newValue);
@@ -51,25 +53,28 @@ export default function SettingItem(props) {
     }
 
     useEffect(() => {
-        setValue(props.value);
+        if (props.type === 'boolean')
+            setValue(parseBoolean(props.value));
+        else
+            setValue(props.value);
         setName(props.name);
         setAffect(props.affect);
-    }, [props.value, props.name, props.affect]);
+    }, [props.type, props.value, props.name, props.affect]);
 
     const renderValueEditor = (value, name, label, type) => {
         if (type === 'boolean')
             return (
-                <Select
-                    native
-                    // value={state.age}
-                    // onChange={handleChange}
-                    // inputProps={{
-                    // }}
-                    style={{ width: '20%' }}
-                >
-                        <option value={true}>Active</option>
-                        <option value={false}>Disable</option>
-                </Select>
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={value}
+                            name={name}
+                            color="primary"
+                            onChange={(el) => { handleOnValueChange(el) }}
+                        />
+                    }
+                    label="Hoạt động"
+                />
             )
         else
             return (
@@ -93,7 +98,7 @@ export default function SettingItem(props) {
         <div className={classes.root}>
             <Typography variant='subtitle1' className={classes.title}>{props.title}</Typography>
             <Typography variant='body2'>{props.description}</Typography>
-            <Grid container spacing={2} style={{marginTop: '5px'}}>
+            <Grid container spacing={2} style={{ marginTop: '5px' }}>
                 <Grid item xs={12} lg={12}>
                     {renderValueEditor(value, 'value', 'Giá trị', props.type)}
                 </Grid>

@@ -104,3 +104,14 @@ exports.generateSlug = (str, separator) => {
 exports.isLetter = (c) => {
     return RegExp(/^\p{L}/,'u').test(c);
 }
+
+exports.parseBoolean = (str) => {
+    if (typeof(str) === 'string')
+        return JSON.parse(str.toLowerCase());
+    else if (typeof(str) === 'boolean')
+        return str;
+    else {
+        console.log(`Parse failed, type: ${typeof(str)}`);
+        return null;
+    }
+}

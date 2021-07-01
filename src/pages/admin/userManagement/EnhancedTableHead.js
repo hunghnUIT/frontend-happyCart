@@ -6,14 +6,6 @@ import {
 import PropTypes from 'prop-types';
 
 
-const headCells = [
-    { id: 'name', alignCenter: false, disablePadding: true, label: 'Tên người dùng' },
-    { id: 'email', alignCenter: false, disablePadding: false, label: 'Địa chỉ Email' },
-    { id: 'createdAt', alignCenter: true, disablePadding: false, label: 'Ngày tham gia' },
-    { id: 'isVerified', alignCenter: true, disablePadding: false, label: 'Đã xác thực Email' },
-    { id: 'note', alignCenter: true, disablePadding: false, label: 'Ghi chú' },
-];
-
 export default function EnhancedTableHead(props) {
     const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
     const createSortHandler = (property) => (event) => {
@@ -31,7 +23,7 @@ export default function EnhancedTableHead(props) {
                         inputProps={{ 'aria-label': 'select all desserts' }}
                     />
                 </TableCell>
-                {headCells.map((headCell) => (
+                {props.headCells.map((headCell) => (
                     <TableCell
                         key={headCell.id}
                         align={headCell.alignCenter ? 'center' : 'left'}

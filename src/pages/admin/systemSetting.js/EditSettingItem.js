@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
     TextField, Grid,
     makeStyles, Select,
+    FormControl, InputLabel,
 } from '@material-ui/core';
 
 
@@ -26,6 +27,7 @@ export default function SettingItem(props) {
     const [subCategory, setSubCategory] = useState('');
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [type, setType] = useState('');
 
     const handleOnInfoChange = (el) => {
         const type = el.target.name;
@@ -42,6 +44,9 @@ export default function SettingItem(props) {
         else if (type === 'subCategory') {
             setSubCategory(newValue);
         }
+        else if (type === 'type') {
+            setType(newValue);
+        }
         props.onInfoChange(props.id, { [type]: newValue });
     }
 
@@ -50,39 +55,25 @@ export default function SettingItem(props) {
         setDescription(props.description);
         setCategory(props.category);
         setSubCategory(props.subCategory);
-    }, [props.title, props.description, props.category, props.subCategory]);
+        setType(props.type);
+    }, [props.title, props.description, props.category, props.subCategory, props.type]);
 
     const renderValueEditor = (value, name, label, type) => {
-        if (type === 'boolean')
-            return (
-                <Select
-                    native
-                    // value={state.age}
-                    // onChange={handleChange}
-                    // inputProps={{
-                    // }}
-                    style={{ width: '20%' }}
-                >
-                        <option value={true}>Active</option>
-                        <option value={false}>Disable</option>
-                </Select>
-            )
-        else
-            return (
-                <TextField
-                    disabled
-                    name={name}
-                    value={value} variant='outlined'
-                    style={{ width: '100%' }}
-                    inputProps={{
-                        style: {
-                            padding: 10
-                        }
-                    }}
-                    label={label}
-                >
-                </TextField>
-            )
+        return (
+            <TextField
+                disabled
+                name={name}
+                value={value} variant='outlined'
+                style={{ width: '100%' }}
+                inputProps={{
+                    style: {
+                        padding: 10
+                    }
+                }}
+                label={label}
+            >
+            </TextField>
+        )
     }
 
     return (
@@ -140,13 +131,25 @@ export default function SettingItem(props) {
                 label='Mô tả'
             />
             <Grid container spacing={2} style={{marginTop: '5px'}}>
-                <Grid item xs={12} lg={4}>
-                    {renderValueEditor(props.value, 'value', 'Giá trị', props.type)}
+                <Grid item xs={12} lg={4} style={{paddingTop: '0'}}>
+                    <FormControl className={classes.formControl} style={{ width: '100%' }}>
+                        <InputLabel htmlFor="age-native-simple">Kiểu dữ liệu</InputLabel>
+                        <Select
+                            native name='type'
+                            value={type}
+                            onChange={handleOnInfoChange}
+                            // inputProps={{
+                            // }}
+                        >
+                            <option value='text'>Text/Number</option>
+                            <option value='boolean'>Boolean</option>
+                    </Select>
+                    </FormControl>
                 </Grid>
-                <Grid item xs={12} lg={4}>
+                <Grid item xs={12} lg={4} style={{paddingTop: '11px'}}>
                     {renderValueEditor(props.name, 'name', 'Tên cài đặt')}
                 </Grid>
-                <Grid item xs={12} lg={4}>
+                <Grid item xs={12} lg={4} style={{paddingTop: '11px'}}>
                     {renderValueEditor(props.affect, 'affect', 'Đối tượng ảnh hưởng')}
                 </Grid>
             </Grid>

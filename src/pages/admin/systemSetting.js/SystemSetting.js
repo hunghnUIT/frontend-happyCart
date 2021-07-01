@@ -385,9 +385,10 @@ export default function SystemSetting(props) {
                             latestIdx = idx;
                         }
                     });
-                    if (latestIdx || latestIdx === 0)
+                    if (latestIdx || latestIdx === 0) {
                         tempCate[latestIdx].isOnScreen = true;
-                    setExpandedList([latestIdx.toString()]);
+                        setExpandedList([latestIdx.toString()]);
+                    }
 
                     let tempSubCate = [].concat(listOffsetSubCate)
                     let subLatestIdx = null;
@@ -450,30 +451,18 @@ export default function SystemSetting(props) {
         let result = [];
         let index = 0;
 
-        if (!isDeleteMode) {
-            for (const key in filteredConfigs[cate]) {
-                const id = `${cate}:${key}`;
-                result.push(<ListSettingItem
-                    id={id}
-                    key={index} isSubCate={true} isEditMode={isEditMode}
-                    subCategory={key} refer={listRef[id]}
-                    listSettingItem={filteredConfigs[cate][key]} noMarginTop={index === 0 ? true : false}
-                    onInfoChange={(id, infoObj) => { handleEditInfo(id, infoObj) }}
-                />)
-
-                index += 1;
-            }
-        }
-        else
-            result.push(
-            <DeleteSettingItemView
-                listSettingItem={filteredConfigs}
-                onSelectSetting={(list) => {
-                    console.log(list)
-                    setSelected(list); 
-                }}
-                resetSelected={resetSelectedDeletingSettingView}
+        for (const key in filteredConfigs[cate]) {
+            const id = `${cate}:${key}`;
+            result.push(<ListSettingItem
+                id={id}
+                key={index} isSubCate={true} isEditMode={isEditMode}
+                subCategory={key} refer={listRef[id]}
+                listSettingItem={filteredConfigs[cate][key]} noMarginTop={index === 0 ? true : false}
+                onInfoChange={(id, infoObj) => { handleEditInfo(id, infoObj) }}
             />)
+
+            index += 1;
+        }
         return result;
     }
 
@@ -494,7 +483,7 @@ export default function SystemSetting(props) {
                                 // Below is a little trick to get index of array offset
                                 <TreeItem className={listRefOffset[lastIndex+i]?.isOnScreen ? classes.highlightMenuContent : ''}
                                     onClick={() => { listRef[`${key}:${sub}`].current.scrollIntoView() }}
-                                    key={i} nodeId={`${key}_${i}`} label={limitDisplayString(sub, 15)} disabled={true}>
+                                    key={lastIndex+i} nodeId={`${key}_${i}`} label={limitDisplayString(sub, 15)} disabled={true}>
                                 </TreeItem>
                             )) : null
                         }
@@ -597,7 +586,17 @@ export default function SystemSetting(props) {
                         </div>
                     </Grid>
                     <Grid item sm={9} lg={10} className={classes.settingItemSide}>
-                        {renderListSettingItem()}
+                        {
+                            !isDeleteMode ? renderListSettingItem() : 
+                                <DeleteSettingItemView
+                                    listSettingItem={filteredConfigs}
+                                    onSelectSetting={(list) => {
+                                        console.log(list)
+                                        setSelected(list); 
+                                    }}
+                                    resetSelected={resetSelectedDeletingSettingView}
+                                />
+                        }
                     </Grid>
                 </Grid>
             </Card>
@@ -712,6 +711,7 @@ export default function SystemSetting(props) {
                                     name='type'
                                     checked={checked}
                                     onChange={(el) => { handleChangeValueInputModal(el.target.name, el.target.checked) }}
+                                    color="primary"
                                 />}
                                 label={`Kiểu dữ liệu Boolean ${checked ? '' : '(Mặc định là kiểu chữ/số)'}`}
                             />
