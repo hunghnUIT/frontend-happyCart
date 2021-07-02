@@ -5,6 +5,7 @@ import {
     InputBase, IconButton,
     Button, Switch,
     TextField, FormControlLabel,
+    Tooltip
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import SaveIcon from '@material-ui/icons/Save';
@@ -14,7 +15,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
-import { makeStyles } from '@material-ui/styles';
+import { makeStyles, withStyles } from '@material-ui/styles';
 import { Row, Container } from 'shards-react';
 import { Modal, } from 'react-bootstrap';
 import { TreeItem, TreeView } from '@material-ui/lab';
@@ -64,6 +65,12 @@ const useStyles = makeStyles({
         // backgroundColor: '#cfcfcf',
     }
 })
+
+const NoMarginToolTip = withStyles({
+    tooltip: {
+        margin: 0,
+    }
+})(Tooltip);
 
 export default function SystemSetting(props) {
     const classes = useStyles();
@@ -162,7 +169,7 @@ export default function SystemSetting(props) {
                 result[key] = {};
                 for (const subCate in dataToFilter[key]) {
                     const temp = dataToFilter[key][subCate].filter((config, idx) => {
-                        return ((config?.title.toLowerCase())?.includes(term) || (config?.description.toLowerCase()).includes(term));
+                        return (((config?.title ?? '').toLowerCase())?.includes(term) || ((config?.description ?? '').toLowerCase()).includes(term));
                     });
                     result[key][subCate] = temp;
                 }
@@ -481,10 +488,12 @@ export default function SystemSetting(props) {
                             subCateLength ?
                             categoryTree[key].map((sub, i) => (
                                 // Below is a little trick to get index of array offset
-                                <TreeItem className={listRefOffset[lastIndex+i]?.isOnScreen ? classes.highlightMenuContent : ''}
-                                    onClick={() => { listRef[`${key}:${sub}`].current.scrollIntoView() }}
-                                    key={lastIndex+i} nodeId={`${key}_${i}`} label={limitDisplayString(sub, 15)} disabled={true}>
-                                </TreeItem>
+                                <NoMarginToolTip title={sub} placement="left" arrow>
+                                    <TreeItem className={listRefOffset[lastIndex+i]?.isOnScreen ? classes.highlightMenuContent : ''}
+                                        onClick={() => { listRef[`${key}:${sub}`].current.scrollIntoView() }}
+                                        key={lastIndex+i} nodeId={`${key}_${i}`} label={limitDisplayString(sub, 15)} disabled={true}>
+                                    </TreeItem>
+                                </NoMarginToolTip>
                             )) : null
                         }
                     </TreeItem>

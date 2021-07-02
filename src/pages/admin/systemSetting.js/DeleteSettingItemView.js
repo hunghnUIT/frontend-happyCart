@@ -138,6 +138,11 @@ export default function DeleteSettingItemView(props) {
                 aria-labelledby="tableTitle"
                 aria-label="enhanced table"
             >
+                {/* <colgroup>
+                    <col style={{ width: '15%' }} />
+                    <col style={{ width: '85%' }} />
+                    <col style={{ width: '85%' }} />
+                </colgroup> */}
                 <EnhancedTableHead
                     classes={classes}
                     numSelected={selected.length}
@@ -175,7 +180,7 @@ export default function DeleteSettingItemView(props) {
                                         {row.title}
                                     </TableCell>
                                     <TableCell>{row.name}</TableCell>
-                                    <TableCell>{(row.affect).join(',')}</TableCell>
+                                    <TableCell>{(row.affect).join(', ')}</TableCell>
                                 </TableRow>
                             );
                         })}
