@@ -25,7 +25,7 @@ import ListSettingItem from './ListSettingItem';
 import DeleteSettingItemView from './DeleteSettingItemView';
 import adminApi from '../../../api/adminApi';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { generateSlug, limitDisplayString } from '../../../helpers/helper';
+import { generateSlug, limitDisplayString, sortObjectByKey } from '../../../helpers/helper';
 
 const useStyles = makeStyles({
     searchBarPaper: {
@@ -36,7 +36,8 @@ const useStyles = makeStyles({
         paddingLeft: '10px',
     },
     menuSide: {
-        position: "fixed",
+        position: 'fixed',
+        // top: '80px',
         padding: '8px 20px 20px 25px',
         // display: 'block',
     },
@@ -336,6 +337,10 @@ export default function SystemSetting(props) {
                     }
                 }
 
+                dict = { ...sortObjectByKey(dict) }
+                for (const key in dict) {
+                    dict[key] = { ...sortObjectByKey(dict[key]) }
+                }
                 setConfigs(dict);
                 setFilteredConfigs(dict);
 
@@ -378,9 +383,27 @@ export default function SystemSetting(props) {
                 listOffsetSubCate[0].isOnScreen = true;
                 setListRefOffset(listOffsetSubCate);
 
+                const menuSide = document.querySelector('#divMenuSide');
+                const menuSideOffset = menuSide.offsetTop;
+
                 window.onscroll = () => {
                     // scroll to where, trigger event to that place.
                     const pOffset = window.pageYOffset;
+                    console.log(pOffset, menuSideOffset);
+                    
+                    if (pOffset-100 < menuSideOffset) {
+                        // menuSide.style.removeProperty('position');
+                        if (menuSide.style.top)
+                            menuSide.style.removeProperty('top');
+                        // menuSide.classList.remove('menuSide');
+                    }
+                    else if (pOffset+50 >= menuSideOffset) {
+                        if (!menuSide.style.top) {
+                            // menuSide.style.position = 'fixed';
+                            menuSide.style.top = '80px';
+                        }
+                    }
+                    
 
                     // Dumb way below, again and twice. :(( (foreach loop is suck)
                     let tempCate = [].concat(listOffset);
@@ -510,7 +533,7 @@ export default function SystemSetting(props) {
         <Container fluid className="main-content-container px-4">
             {/* Page Header */}
             <Row noGutters className="page-header py-4">
-                <PageTitle title="Cấu hình hệ thống" subtitle="Quản lý" className="text-sm-left mb-3" />
+                <PageTitle title="Cấu hình Crawler" subtitle="Quản lý" className="text-sm-left mb-3" />
             </Row>
             <Card style={{ minHeight: '400px' }}>
                 <Toolbar>
@@ -533,7 +556,7 @@ export default function SystemSetting(props) {
                 </Toolbar>
                 <Grid container>
                     <Grid item sm={3} lg={2} style={{ display: 'block' }}>
-                        <div className={classes.menuSide}>
+                        <div className={classes.menuSide} id='divMenuSide'>
                             <TreeView
                                 className={classes.root}
                                 defaultCollapseIcon={<ExpandMoreIcon />}

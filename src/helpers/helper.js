@@ -115,3 +115,23 @@ exports.parseBoolean = (str) => {
         return null;
     }
 }
+
+/**
+ * This will return priority of key based on order below, ***this only for sorting key in system setting purpose***
+ * @param {String} key key of object
+ */
+const getKeyDisplayPriority = (key) => {
+    // Priority order: chung > api/html crawler > api <ID>
+    if (key.includes('chung'))
+        return 3;
+    else if (/^[a-zA-Z]+$/.test(key)) // Only letter
+        return 2;
+    else // Letter and number
+        return 1;
+}
+
+/**
+ * Sort object by key priority, the bigger priority will come first
+ * @returns Sorted object
+ */
+exports.sortObjectByKey = obj => Object.keys(obj).sort((a, b) => getKeyDisplayPriority(b) - getKeyDisplayPriority(a)).reduce((res, key) => (res[key] = obj[key], res), {}); //eslint-disable-line
