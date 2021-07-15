@@ -142,8 +142,8 @@ export default function Dashboard({ smallStats, ...props }) {
   const RenderProgressBarShopee = () => {
       return (<CrawlingProgress
           label='Tiến độ crawl sàn Shopee'
-          updated={progressShopee.shopee?.updated || null}
-          total={progressShopee.shopee?.total || null}
+          updated={progressShopee.shopee?.updated}
+          total={progressShopee.shopee?.total}
           expiredTime={progressShopee.expiredTime}
           executionTimeInMs={progressShopee.shopee?.executionTimeInMs || null}
           /> )
@@ -152,8 +152,8 @@ export default function Dashboard({ smallStats, ...props }) {
   const RenderProgressBarTiki = () => {
       return (<CrawlingProgress
           label='Tiến độ crawl sàn Tiki'
-          updated={progressTiki.tiki?.updated || null}
-          total={progressTiki.tiki?.total || null}
+          updated={progressTiki.tiki?.updated}
+          total={progressTiki.tiki?.total}
           expiredTime={progressTiki.expiredTime}
           executionTimeInMs={progressTiki.tiki?.executionTimeInMs || null}
           /> )

@@ -6,6 +6,7 @@ import Dashboard from './Dashboard';
 import UserManagement from './userManagement/UserManagement';
 import StopWordManagement from './StopWordManagement';
 import SystemSetting from './systemSetting.js/SystemSetting';
+import Monitor from './monitor/Monitor';
 
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -28,9 +29,9 @@ const routes = [
         component: StopWordManagement
     },
     {
-        path: "/performance",
+        path: "/monitor",
         layout: DefaultLayout,
-        component: StopWordManagement
+        component: Monitor
     },
     {
         path: "/system-settings",

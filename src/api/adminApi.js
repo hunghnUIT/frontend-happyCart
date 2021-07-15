@@ -2,7 +2,8 @@ import adminAxios from "../utils/adminAxios";
 import { 
     MY_ACCOUNT_INFO_URL, ADMIN_STATISTIC_URL,
     ADMIN_USER_URL, ADMIN_CONFIG_URL,
-    ADMIN_STOP_WORD_URL,
+    ADMIN_STOP_WORD_URL, ADMIN_CRAWLER_STATUS_URL,
+    ADMIN_CRAWLER_RESTART_URL,
 } from "../settings";
 
 class adminApi {
@@ -53,5 +54,13 @@ class adminApi {
     deleteStopWordOfCategory = (categoryId, word) => {
         return adminAxios.delete(`${ADMIN_STOP_WORD_URL}/${categoryId}/stopwords/${word}`)
     }
+
+    getCrawlersStatus = (params) => {
+        return adminAxios.get(ADMIN_CRAWLER_STATUS_URL, { params })
+    }
+
+    restartCrawler = (crawlerName) => {
+        return adminAxios.post(ADMIN_CRAWLER_RESTART_URL, {} ,{ params: { crawlerName } })
+    } 
 }
 export default new adminApi();

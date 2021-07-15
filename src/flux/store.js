@@ -15,7 +15,7 @@ let _store = {
     {
       title: "Quản lý hiệu năng",
       htmlBefore: '<i class="material-icons">speed</i>',
-      to: "/admin/performance",
+      to: "/admin/monitor",
     },
     // {
     //   title: "Blog Posts",

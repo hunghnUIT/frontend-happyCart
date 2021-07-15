@@ -99,7 +99,7 @@ class CrawlingProgress extends React.Component {
                             <span className={labelClasses}>{label}</span>
                         </div>
                         {
-                            (!updated || !total) ? 
+                            ((!updated && updated !== 0) || !total) ? 
                             <>
                                 <div className={progressBarClass}>
                                     <Box display="flex" alignItems="center">

@@ -21,6 +21,9 @@ const ADMIN_USER_URL = ADMIN_URL + '/users';
 const ADMIN_STATISTIC_URL = ADMIN_URL + "/statistics";
 const ADMIN_CONFIG_URL = ADMIN_URL + '/configs';
 const ADMIN_STOP_WORD_URL = BASE_URL + '/relevant/get-relevant-products/root-category';
+const ADMIN_CRAWLER_URL = ADMIN_URL + '/crawlers';
+const ADMIN_CRAWLER_STATUS_URL = ADMIN_CRAWLER_URL + '/status'
+const ADMIN_CRAWLER_RESTART_URL = ADMIN_CRAWLER_URL + '/restart';
 
 
 // const VERIFY_RESET_PASSWORD_URL = RESET_PASSWORD_URL + "/verify";
@@ -43,4 +46,6 @@ export {
     ADMIN_STATISTIC_URL,
     ADMIN_CONFIG_URL,
     ADMIN_STOP_WORD_URL,
+    ADMIN_CRAWLER_STATUS_URL,
+    ADMIN_CRAWLER_RESTART_URL,
 };

@@ -389,7 +389,7 @@ export default function SystemSetting(props) {
                 window.onscroll = () => {
                     // scroll to where, trigger event to that place.
                     const pOffset = window.pageYOffset;
-                    console.log(pOffset, menuSideOffset);
+                    // console.log(pOffset, menuSideOffset);
                     
                     if (pOffset-100 < menuSideOffset) {
                         // menuSide.style.removeProperty('position');
