@@ -161,8 +161,7 @@ export default function Monitor() {
             }, 4000);
         }
 
-    }, []); //eslint-disable-line
-    // }, [updateDataCount]); //eslint-disable-line
+    }, [updateDataCount]); //eslint-disable-line
 
     const renderCrawlersStatus = () => {
         let result = [];
@@ -172,6 +171,8 @@ export default function Monitor() {
 
             let diskFreePercentage = 0;
             let diskUsedPercentage = 0;
+            let totalDiskGb = 0;
+            let usedDiskGb = 0;
 
             let cpuCount = 1;
             let maxCpuPercent = 0;
@@ -189,6 +190,8 @@ export default function Monitor() {
                 // Disk
                 diskUsedPercentage = Number(status.diskInfo.usedPercentage)
                 diskFreePercentage = Number(100.0) - diskUsedPercentage;
+                totalDiskGb = Number(status.diskInfo.totalGb);
+                usedDiskGb = Number(status.diskInfo.usedGb);
 
                 // CPU
                 cpuCount = Number(status.cpuCount);
@@ -264,6 +267,14 @@ export default function Monitor() {
                                                 { name: 'Các tiến trình khác', value: Math.round((Number(status?.cpuTotalUsagePercent ?? 0) - cpuCrawlerUsagePercent) / cpuCount) },
                                                 { name: 'Chưa sử dụng', value: Math.round(totalCpuFreePercent / cpuCount) }
                                             ]}
+                                            showTooltip={true}
+                                            numericalData={{
+                                                'Crawler sử dụng': cpuCrawlerUsagePercent,
+                                                'Các tiến trình khác': Number(status?.cpuTotalUsagePercent ?? 0) - cpuCrawlerUsagePercent,
+                                                'Chưa sử dụng': totalCpuFreePercent,
+                                            }}
+                                            displayInTooltipUnit='%'
+                                            // wrapperWidth='215px'
                                         />
                                         <div style={{ alignItems: 'center', display: 'flex' }}>
                                             <ul style={{ listStyleType: 'none', paddingLeft: '1rem' }}>
@@ -302,6 +313,13 @@ export default function Monitor() {
                                                 { name: 'Các tiến trình khác', value: Math.round(totalMemUsagePercent) },
                                                 { name: 'Chưa sử dụng', value: Math.round(((totalMemMb - totalMemUsageMb) / totalMemMb) * 100) }
                                             ]}
+                                            numericalData={{
+                                                'Crawler sử dụng': memCrawlerUsageMb/1000,
+                                                'Các tiến trình khác': (totalMemUsageMb - memCrawlerUsageMb)/1000,
+                                                'Chưa sử dụng': (totalMemMb - totalMemUsageMb)/1000,
+                                            }}
+                                            displayInTooltipUnit='GB'
+                                            // wrapperWidth='130px'
                                         />
                                     </div>
                                 </div>
@@ -318,6 +336,14 @@ export default function Monitor() {
                                             { name: 'Còn trống', value: Math.round(diskFreePercentage) },
                                             { name: 'Chưa phân vùng', value: 0 }
                                         ]}
+                                        showTooltip={true}
+                                        numericalData={{
+                                            'Đã sử dụng': usedDiskGb,
+                                            'Còn trống':  totalDiskGb - usedDiskGb,
+                                            'Chưa phân vùng': 0,
+                                        }}
+                                        displayInTooltipUnit='GB'
+                                        wrapperWidth='170px'
                                     />
                                     <div className="ml-2 align-self-center">
                                         <h2 className="mb-0">{status?.diskInfo?.totalGb ?? '0'} <small>GB</small></h2>
@@ -329,14 +355,14 @@ export default function Monitor() {
                                         <div className={"small mb-2 " + (classes.fadeText)}>
                                             <i className="fa fa-circle fa-fw text-primary"></i> Đã sử dụng
                                         </div>
-                                        <h6 className="mb-0">{status?.diskInfo?.usedGb ?? '0'} GB</h6>
+                                        <h6 className="mb-0">{usedDiskGb} GB</h6>
                                         <span className={classes.fadeText}>{status?.diskInfo?.usedPercentage ?? '0'}%</span>
                                     </div>
                                     <div className="text-left">
                                         <div className={"small mb-2 " + (classes.fadeText)} >
                                             <i className="fa fa-circle fa-fw text-info"></i> Còn trống
                                         </div>
-                                        <h6 className="mb-0">{ } GB</h6>
+                                        <h6 className="mb-0">{ (totalDiskGb - usedDiskGb).toFixed(1) } GB</h6>
                                         <span className={classes.fadeText}>{diskFreePercentage}%</span>
                                     </div>
                                     <div className="text-left">
