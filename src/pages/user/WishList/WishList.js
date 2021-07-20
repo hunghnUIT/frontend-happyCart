@@ -18,7 +18,6 @@ import {
 } from '@material-ui/core';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import auth from '../../../auth/auth';
-import cookies from '../../../utils/cookie';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -166,7 +165,7 @@ export default function WishList(props) {
         setListSelectedButtonSideBar(temp);
 
         // Get name of user
-        setNameOfUser(cookies.get('name'));
+        setNameOfUser(localStorage.getItem('name'));
 
         // NOTE When creating "filter" state, api fetched again so no need to fetch on did mount
         // userApi.getTrackingItems({}).then(resp => {

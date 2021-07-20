@@ -135,9 +135,6 @@ export default function SignInSide(props) {
     const handleLogin = async () => {
         const emailValue = email ? email : cookies.get("email");
         const pwdValue = pwd ? pwd : cookies.get("password");
-        // temp for testing
-        // await userApi.login(emailValue, pwdValue, null, true);
-
 
         let authorization = "";
         if (isLoginAsAdmin) {
@@ -151,58 +148,54 @@ export default function SignInSide(props) {
             // Temporary disable btn after clicked.
             setDisableLoginBtn(true);
 
-        //     await axios.request(configRequest)
-            userApi.login(emailValue, pwdValue, null, isLoginAsAdmin)
-                .then(async data => {
-                    if (data) {
-                        await cookies.set(authorization + 'accessToken', data['accessToken'], { path: '/' });
-                        await cookies.set(authorization + 'refreshToken', data['refreshToken'], { path: '/' });
-                        await cookies.set(authorization + 'expiredAt', data['accessTokenExpiredAt'], { path: '/' });
-
-                        if (isRememberChecked) {
-                            localStorage.setItem('email', emailValue);
-                            localStorage.setItem('password', pwdValue);
-                        }
-                        else {
-                            localStorage.setItem('email', "");
-                            localStorage.setItem('password', "");
-                        }
-                        // props.history.push("/");
-                        setLoggedIn(true);
-                        return data['accessToken'];
+            const data = await userApi.login(emailValue, pwdValue, null, isLoginAsAdmin).catch((error) => {
+                console.log(error);
+                if (error.response) {
+                    console.error('Error:', error.response.data);
+                    // setState for showing errors here.
+                    if (error.response.data['message'] === 'Account has been disable') {
+                        setError("Tài khoản của bạn đã bị vô hiệu hóa")
                     }
-                })
-                .then(async () => {
-                    let response;
-                    if (!isLoginAsAdmin)
-                        response = await userApi.myAccount().catch(err => console.log(err.message));
+                    else if (error.response.status === 401)
+                        setError("Email hoặc mật khẩu không đúng.")
+                    else if (error.response.status === 422)
+                        setError("Hãy xác thực địa chỉ email của bạn để tiếp tục.")
                     else
-                        response = await adminApi.myAccount().catch(err => console.log(err.message));
-                    if (response && response.success) {
-                        localStorage.setItem('name', response.user.name);
-                        await cookies.set(authorization + 'name', response.user.name, { path: '/' }); // For extension cuz having trouble in getting name from localStorage
-                    }                    
-                })
-                .catch((error) => {
-                    console.log(error);
-                    if (error.response) {
-                        console.error('Error:', error.response.data);
-                        // setState for showing errors here.
-                        if (error.response.data['message'] === 'Account has been disable') {
-                            setError("Tài khoản của bạn đã bị vô hiệu hóa")
-                        }
-                        else if (error.response.status === 401)
-                            setError("Email hoặc mật khẩu không đúng.")
-                        else if (error.response.status === 422)
-                            setError("Hãy xác thực địa chỉ email của bạn để tiếp tục.")
-                        else
-                            setError(error.response.data['message']);
-                    }
-                    else {
-                        setError("Oops. Đã có lỗi xảy ra. Hãy thử kiểm tra lại đường truyền kết nối của bạn nhé.");
-                    }
-                    setDisableLoginBtn(false);
-                });
+                        setError(error.response.data['message']);
+                }
+                else {
+                    setError("Oops. Đã có lỗi xảy ra. Hãy thử kiểm tra lại đường truyền kết nối của bạn nhé.");
+                }
+                setDisableLoginBtn(false);
+            });
+
+            if (data) {
+                await cookies.set(authorization + 'accessToken', data['accessToken'], { path: '/' });
+                await cookies.set(authorization + 'refreshToken', data['refreshToken'], { path: '/' });
+                await cookies.set(authorization + 'expiredAt', data['accessTokenExpiredAt'], { path: '/' });
+
+                if (isRememberChecked) {
+                    localStorage.setItem('email', emailValue);
+                    localStorage.setItem('password', pwdValue);
+                }
+                else {
+                    localStorage.setItem('email', "");
+                    localStorage.setItem('password', "");
+                }
+
+                let response;
+                if (!isLoginAsAdmin)
+                    response = await userApi.myAccount().catch(err => console.log(err.message));
+                else
+                    response = await adminApi.myAccount().catch(err => console.log(err.message));
+                if (response && response?.success) {
+                    localStorage.setItem('name', response.user.name);
+                    await cookies.set(authorization + 'name', encodeURIComponent(response.user.name), { path: '/' }); // For extension cuz having trouble in getting name from localStorage
+                }                    
+
+                // Let it stay here for waiting for get account name.
+                setLoggedIn(true);
+            }
         }
         else {
             setShowAlert(true);
@@ -363,7 +356,7 @@ export default function SignInSide(props) {
                             />
                             <Collapse in={((messageEmail || messagePwd) && isShowAlert) ? true : false}>
                                 <Alert severity="error">
-                                    <AlertTitle>Error</AlertTitle>
+                                    <AlertTitle>Lỗi</AlertTitle>
                                     <p> {messageEmail} <br /> {messagePwd}</p>
                                 </Alert>
                             </Collapse>
